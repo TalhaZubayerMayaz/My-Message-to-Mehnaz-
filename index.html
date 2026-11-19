@@ -444,9 +444,129 @@
     margin-top: 22px; font-size: 12px; color: #ff9db1; cursor:pointer;
     text-decoration: underline dotted; background:none; border:none; font-family:inherit;
   }
+
+  /* ===== moods / backgrounds ===== */
+  #bg{ position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+  .bgl{ position:absolute; inset:0; opacity:0; transition: opacity 1.4s ease; }
+  .bgl.on{ opacity:1; }
+  .bgl.sakura{ background: linear-gradient(160deg,#ffe6d5,#f7c6cf 55%,#e9a8c4); }
+  .bgl.night{ background: linear-gradient(180deg,#0e0a2a,#2a1650 60%,#5a2a6a); }
+  .bgl.candle{ background: linear-gradient(160deg,#3a1a14,#6b3a22 55%,#c98a52); --bk:255,200,120; }
+  .bgl.sweet{ background: linear-gradient(160deg,#ffd9e6,#ffc2d6 55%,#ffe9c9); --bk:255,255,255; }
+  .star{ position:absolute; border-radius:50%; background:#fff; box-shadow:0 0 6px #fff; animation: tw 3s ease-in-out infinite; }
+  @keyframes tw{ 0%,100%{opacity:.2} 50%{opacity:1} }
+  .shoot{ position:absolute; top:10%; left:70%; width:90px; height:2px; background:linear-gradient(90deg,#fff,transparent); transform:rotate(-35deg); opacity:0; animation: shoot 9s linear infinite 3s; }
+  @keyframes shoot{ 0%{opacity:0; transform:translate(0,0) rotate(-35deg)} 3%{opacity:1} 10%{opacity:0; transform:translate(-260px,180px) rotate(-35deg)} 100%{opacity:0} }
+  .bk{ position:absolute; border-radius:50%; background:radial-gradient(circle, rgba(var(--bk),.55), rgba(var(--bk),0) 70%); animation: bkf ease-in-out infinite alternate; }
+  @keyframes bkf{ to{ transform: translate(24px,-34px) scale(1.15); opacity:.55; } }
+  .petal{ position:absolute; top:-30px; color:#ff9db1; pointer-events:none; animation: pet linear forwards; }
+  @keyframes pet{ 0%{transform:translate(0,0) rotate(0)} 100%{transform:translate(60px,112vh) rotate(420deg); opacity:.4} }
+
+  /* ===== new scenes ===== */
+  .fivetxt{ font-family:'Great Vibes',cursive; font-size:32px; line-height:1.4; color:var(--ink); margin:34px 0 30px; max-width:340px; }
+  .poemTitle{ font-family:'Great Vibes',cursive; font-size:64px; color:var(--ink); margin:16px 0 6px; line-height:1; }
+  .ta{ width:100%; min-height:130px; resize:vertical; font-family:inherit; font-size:14px; line-height:1.6; color:var(--ink);
+       background:#fff8f4; border:2px solid var(--pink-mid); border-radius:8px; padding:12px; outline:none; }
+  .ta:focus{ border-color:var(--coral); }
+  .qprog{ font-size:11px; letter-spacing:2px; color:#b5716f; margin-bottom:6px; }
+  #scene-q h1.q{ margin:10px 0 18px; font-size:21px; min-height:58px; }
+  #scene-q .pixel-btn, #scene-note .pixel-btn{ margin-top:12px; font-size:14px; padding:10px 22px; }
+  .qdone{ display:none; margin-top:12px; }
+  .qdone .big{ font-size:18px; color:var(--ink); font-weight:800; margin-bottom:4px; }
+  .qdone .big span{ color:var(--red); display:inline-block; animation: heartbeat 1.5s ease-in-out infinite; }
+
+  .cafe{ width:100%; max-width:300px; display:flex; flex-direction:column; align-items:center; margin-top:2px; }
+  canvas.ebrk{ image-rendering:pixelated; width:120px; height:120px; position:relative; z-index:1; margin-bottom:-18px; filter:drop-shadow(0 6px 10px rgba(0,0,0,.2)); }
+  .table{ position:relative; width:100%; height:175px; border:4px solid #a86a5f; border-radius:16px;
+          background:repeating-linear-gradient(90deg,#e7b8a8 0 28px,#e0ab9a 28px 56px); box-shadow:0 10px 0 #8d5a50, 0 18px 24px rgba(0,0,0,.25); }
+  canvas.item{ image-rendering:pixelated; width:96px; height:72px; display:block; transition:transform .3s ease;
+               filter:drop-shadow(3px 0 0 #8a5a55) drop-shadow(-3px 0 0 #8a5a55) drop-shadow(0 3px 0 #8a5a55) drop-shadow(0 -3px 0 #8a5a55); }
+  canvas.item.his{ position:absolute; top:20px; left:50%; margin-left:30px; width:66px; height:50px; }
+  canvas.item.his.sip{ animation: hisSip 2.2s ease-in-out; }
+  @keyframes hisSip{ 0%,100%{transform:translate(0,0)} 30%,70%{transform:translate(-30px,-44px) rotate(-14deg)} }
+  .hers{ position:absolute; bottom:8px; left:50%; transform:translateX(-50%); cursor:pointer; touch-action:none; user-select:none; -webkit-user-select:none; padding:10px 16px; }
+  .hers.tilt canvas.item{ transform:rotate(-14deg) translateY(-6px); }
+  .steam{ position:absolute; top:-26px; left:50%; transform:translateX(-50%); display:flex; gap:7px; pointer-events:none; }
+  .steam.his{ top:-8px; left:calc(50% + 63px); }
+  .steam i{ width:6px; height:18px; border-radius:6px; background:rgba(255,255,255,.85); animation: steam 2.4s ease-in-out infinite; }
+  .steam i:nth-child(2){ animation-delay:.5s } .steam i:nth-child(3){ animation-delay:1s }
+  @keyframes steam{ 0%{opacity:0; transform:translateY(8px)} 50%{opacity:.9} 100%{opacity:0; transform:translateY(-14px)} }
+  .holdwrap{ width:200px; height:10px; border:2px solid var(--coral); border-radius:8px; margin-top:18px; background:#fff8f4; overflow:hidden; }
+  #holdBar{ height:100%; width:0; background:var(--red); }
+
+  .enjoy{ margin-top:18px; pointer-events:none; width:min(86vw,320px); }
+  #bloomMsg.show .enjoy{ pointer-events:auto; }
+  #bloomMsg .l4{ font-family:'Great Vibes',cursive; font-size:30px; color:#ffccd5; margin:0 0 8px; text-shadow:0 0 14px rgba(255,12,70,.7); }
+  #bloomMsg .l5{ font-size:14px; color:#ffccd5; margin:8px 0 0; }
+  .ta.dk{ min-height:60px; background:rgba(255,255,255,.1); color:#ffe3e8; border-color:#ff9db1; }
+  .ta.dk::placeholder{ color:#e9a3b2; }
+  #bloomMsg .pixel-btn{ margin-top:10px; font-size:13px; padding:8px 18px; }
+  #bloomMsg .note-error{ color:#ff9db1; }
+  @media (max-height:720px){ #bloomMsg .l1{font-size:26px; margin-bottom:10px} #bloomMsg .l2{font-size:34px; margin-bottom:8px} #bloomMsg .l4{font-size:24px} .enjoy{margin-top:10px} }
+
+  /* ===== conversation-style questions ===== */
+  .hearts-prog{ font-size:15px; letter-spacing:3px; color:var(--red); margin-bottom:6px; }
+  .chat{ display:flex; align-items:flex-end; gap:16px; width:100%; margin:8px 0 14px; }
+  canvas.eq{ image-rendering:pixelated; width:92px; height:92px; flex:none; animation: idle-bob 2.5s ease-in-out infinite; filter:drop-shadow(0 6px 8px rgba(0,0,0,.2)); }
+  .bubble{ position:relative; flex:1; background:#fff8f4; border:3px solid var(--coral); border-radius:14px 14px 14px 4px;
+           padding:12px 14px; text-align:left; color:var(--ink); font-size:16px; line-height:1.5; min-height:96px;
+           display:flex; flex-direction:column; justify-content:center; cursor:pointer; }
+  .bubble:before{ content:""; position:absolute; left:-14px; bottom:14px; border:7px solid transparent; border-right-color:var(--coral); }
+  .bubble small{ font-size:12px; color:#b5716f; letter-spacing:.5px; margin-bottom:3px; }
+  #qAns{ min-height:90px; }
+  .skiphint{ font-size:11px; color:#b5716f; margin-top:8px; }
+
+  /* sip fix: item travels to his mouth and stays in front of his face */
+  canvas.item.his{ z-index:3; }
+  @keyframes hisSip{ 0%,100%{transform:translate(0,0)} 30%,70%{transform:translate(-60px,-67px) rotate(-12deg) scale(.85)} }
+
+  /* a short walk */
+  .walkstage{ position:relative; width:100%; max-width:300px; height:230px; border-radius:14px; border:3px solid var(--coral);
+              overflow:hidden; background:linear-gradient(#1a1240,#3b2260 60%,#6a3a70); margin:6px 0 10px; }
+  .walkstage .moon{ position:absolute; top:14px; right:26px; width:34px; height:34px; border-radius:50%; background:#fff6dc; box-shadow:0 0 22px 6px rgba(255,246,220,.5); }
+  .walkstage .road{ position:absolute; left:0; right:0; bottom:0; height:150px; background:linear-gradient(#2a1a3e,#4a2f5a); clip-path:polygon(44% 0,56% 0,100% 100%,0 100%); }
+  .walkstage .line{ position:absolute; left:50%; bottom:0; width:4px; height:150px; transform:translateX(-50%);
+                    background:repeating-linear-gradient(to bottom,transparent 0 14px,#f6d98a 14px 26px); opacity:.6; }
+  canvas.ew{ position:absolute; left:50%; top:18px; width:120px; height:120px; transform-origin:50% 100%; image-rendering:pixelated;
+             transform:translate(-50%,0) scale(.28); filter:drop-shadow(0 4px 6px rgba(0,0,0,.4)); }
+  .dist{ font-size:34px; font-weight:800; color:var(--ink); letter-spacing:1px; margin:2px 0 4px; }
+  .dist small{ font-size:16px; font-weight:700; color:var(--soft); }
+  #walkBtn{ touch-action:none; user-select:none; -webkit-user-select:none; margin-top:8px; }
+
+  /* keepsake ticket */
+  .ticket{ width:100%; max-width:300px; background:#fff8f4; border:3px solid var(--coral); border-radius:10px; margin:10px 0 20px;
+           color:var(--ink); box-shadow:0 8px 0 rgba(217,123,115,.35); overflow:hidden; text-align:left; }
+  .tk-top{ background:var(--coral); color:#fff; font-size:11px; letter-spacing:3px; font-weight:800; padding:8px 14px; }
+  .tk-body{ padding:16px 16px 14px; }
+  .tk-big{ font-family:'Great Vibes',cursive; font-size:44px; line-height:1; margin-bottom:12px; }
+  .tk-row{ display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:5px 0; border-bottom:1px dotted var(--pink-mid); }
+  .tk-row span{ color:#b5716f; letter-spacing:1px; font-size:11px; }
+  .tk-perf{ border-top:2px dashed var(--coral); }
+  .tk-foot{ padding:12px 16px 14px; font-size:11px; color:#b5716f; }
+  .tk-bar{ height:34px; margin-bottom:8px; background:repeating-linear-gradient(90deg,#7a3b3b 0 2px,transparent 2px 5px,#7a3b3b 5px 6px,transparent 6px 10px,#7a3b3b 10px 13px,transparent 13px 16px); opacity:.7; }
+
+  canvas#scarf{ position:absolute; left:50%; top:176px; width:96px; height:54px; image-rendering:pixelated; z-index:5;
+                transform:translate(-50%,0) scale(0); transition:transform .6s cubic-bezier(.2,1.5,.4,1); filter:drop-shadow(0 4px 6px rgba(0,0,0,.45)); }
+  canvas#scarf.show{ transform:translate(-50%,0) scale(1); animation: scarfSway 2s ease-in-out infinite .6s; }
+  canvas#scarf.taken{ animation:none; transition:transform 1.4s ease; transform:translate(-50%,86px) scale(3.4); }
+  @keyframes scarfSway{ 0%,100%{transform:translate(-50%,0) scale(1) rotate(-3deg)} 50%{transform:translate(-50%,-4px) scale(1) rotate(3deg)} }
+
+  /* Mehnaz asks Eren */
+  .bubble.up{ flex:none; width:100%; align-items:center; text-align:center; cursor:default; border-radius:14px; min-height:70px; margin:6px 0 16px; }
+  .bubble.up:before{ left:50%; bottom:-15px; margin-left:-7px; border-right-color:transparent; border-top-color:var(--coral); }
+  .bubble.up.pop{ animation: bpop .6s cubic-bezier(.2,1.5,.4,1); background:#fff0f3; }
+  @keyframes bpop{ from{ transform:scale(.4); opacity:0 } to{ transform:scale(1); opacity:1 } }
+  canvas.eam{ image-rendering:pixelated; width:130px; height:130px; margin:6px 0 14px; transition:transform .5s ease;
+              animation: idle-bob 2.5s ease-in-out infinite; filter:drop-shadow(0 6px 10px rgba(0,0,0,.2)); }
+  canvas.eam.kiss{ animation:none; transform:translateY(10px) scale(1.08); }
+  .amblock{ width:100%; display:flex; flex-direction:column; align-items:center; }
+  #scene-askme .pixel-btn{ margin-top:12px; font-size:14px; padding:10px 22px; }
+  #kissBtn{ touch-action:none; user-select:none; -webkit-user-select:none; }
+  #kissBar{ height:100%; width:0; background:var(--red); }
 </style>
 </head>
 <body>
+<div id="bg"></div>
 
 <div class="stage">
 
@@ -472,8 +592,8 @@
 
       <!-- Yes: poem + Mehnaz's note + surprise -->
       <section class="scene" id="scene-yes">
-        <div class="yay">A little poem, just for you <span style="color:#f3a7b4">&#9825;</span></div>
-        <canvas id="catHappy" width="16" height="16"></canvas>
+        <canvas id="catHappy" width="16" height="16" style="margin-top:22px"></canvas>
+        <div class="poemTitle">You</div>
         <p class="msg" style="max-width:390px; font-size:13px; line-height:1.85">
           I have read many poems of yours,<br><span class="highlight">now read mine.</span><br><br>
           You're beautiful like <b>Mikasa</b><br>
@@ -500,26 +620,111 @@
           I Hope You Liked It
         </p>
 
-        <!-- Mehnaz writes her heart here -->
-        <div class="note-section">
-          <form id="noteForm" action="https://docs.google.com/forms/d/e/1FAIpQLSdgaPGoFb5ogA7qkfwKOnDPHWKuM-rNA0B_fBc9EUy4K-UTLA/formResponse" method="POST" target="hidden_iframe" autocomplete="off">
-            <div id="noteWrite">
-              <h3 class="note-title">Now it's your turn &#9825;</h3>
-              <p class="note-sub">Write whatever you feel, in Bangla or English.<br>Every word will reach me.</p>
-              <textarea id="noteText" name="entry.1596017756" placeholder="Write your heart out here..." maxlength="5000"></textarea>
-              <div class="note-error" id="noteError"></div>
-              <button type="submit" class="pixel-btn" id="noteSend">GIVE ME YOUR NOTIFICATION &hearts;</button>
-            </div>
-            <div class="note-sent" id="noteSent">
-              <div class="big"><span>&hearts;</span> Your words have reached me</div>
-              <p>Thank you for telling me what is in your heart.</p>
-              <button type="button" class="note-more" id="noteMore">write something more</button>
-            </div>
-          </form>
-          <iframe name="hidden_iframe" id="hidden_iframe" style="display:none" title="hidden"></iframe>
-        </div>
+        <button class="pixel-btn" id="toQuestions" style="margin-top:26px">LET&rsquo;S BEGIN OUR DATE &hearts;</button>
+      </section>
 
-        <div class="continue-hint" id="toGift">there is one more little surprise &rarr;</div>
+
+      <!-- A small request -->
+      <section class="scene" id="scene-five">
+        <div class="qprog">A SMALL REQUEST</div>
+        <div class="fivetxt">Can I have just five minutes of your life?<br>Those five minutes would mean the world to me.</div>
+        <button class="pixel-btn" id="fiveBtn">OKAY, FIVE MINUTES &hearts;</button>
+      </section>
+
+      <!-- Question as a conversation (reused for every question) -->
+      <section class="scene" id="scene-q">
+        <div class="hearts-prog" id="qProg"></div>
+        <div class="chat">
+          <canvas id="erenQ" class="eq" width="16" height="16"></canvas>
+          <div class="bubble" id="qBubble"><small id="qLead"></small><span id="qText"></span></div>
+        </div>
+        <textarea class="ta" id="qAns" placeholder="Reply to him..." maxlength="3000"></textarea>
+        <div class="note-error" id="qErr"></div>
+        <button class="pixel-btn" id="qSave">SAVE &amp; NEXT &rsaquo;</button>
+        <div class="skiphint">leave it empty if you want to skip this one</div>
+      </section>
+
+      <!-- A short walk -->
+      <section class="scene" id="scene-walk">
+        <div class="qprog">A SHORT WALK</div>
+        <div class="walkstage"><div class="moon"></div><div class="road"></div><div class="line"></div>
+          <canvas id="erenWalk" class="ew" width="16" height="16"></canvas>
+          <canvas id="scarf" width="16" height="9"></canvas></div>
+        <div class="dist"><span id="distNum">1625</span> <small>m</small></div>
+        <button class="pixel-btn" id="walkBtn">HOLD TO WALK</button>
+        <div class="msg" id="walkHint" style="margin-top:10px"></div>
+        <button class="pixel-btn" id="scarfBtn" style="display:none;margin-top:14px">TAKE THE SCARF &hearts;</button>
+        <button class="pixel-btn" id="walkNext" style="display:none;margin-top:14px">CONTINUE &rsaquo;</button>
+      </section>
+
+      <!-- Mehnaz asks Eren -->
+      <section class="scene" id="scene-askme">
+        <div class="qprog">YOUR TURN TO ASK</div>
+        <div class="bubble up" id="amBubble"><span id="amText"></span></div>
+        <canvas id="erenAm" class="eam" width="16" height="16"></canvas>
+        <div class="amblock" id="amWrite">
+          <textarea class="ta" id="amAns" placeholder="Ask me anything, as many questions as you like..." maxlength="3000"></textarea>
+          <div class="note-error" id="amErr"></div>
+          <button class="pixel-btn" id="amSend">SUBMIT &hearts;</button>
+          <div class="skiphint">leave it empty if you have nothing to ask</div>
+        </div>
+        <div class="amblock" id="amKiss" style="display:none">
+          <div class="holdwrap"><div id="kissBar"></div></div>
+          <button class="pixel-btn" id="kissBtn">HOLD TO KISS &hearts;</button>
+          <div class="msg" id="kissHint" style="margin-top:10px"></div>
+        </div>
+        <button class="pixel-btn" id="amNext" style="display:none;margin-top:16px">CONTINUE &rsaquo;</button>
+      </section>
+
+      <!-- Keepsake ticket -->
+      <section class="scene" id="scene-ticket">
+        <div class="ticket">
+          <div class="tk-top">ONE EVENING, JUST FOR US</div>
+          <div class="tk-body">
+            <div class="tk-big">Our Date</div>
+            <div class="tk-row"><span>FOR</span>Mehnaz</div>
+            <div class="tk-row"><span>FROM</span>1625 meters away</div>
+            <div class="tk-row"><span>SEAT</span>right next to me</div>
+          </div>
+          <div class="tk-perf"></div>
+          <div class="tk-foot"><div class="tk-bar"></div>Keep this ticket. Screenshot it if you like.</div>
+        </div>
+        <button class="pixel-btn" id="ticketBtn">ONE LAST SURPRISE &rarr;</button>
+      </section>
+
+      <!-- Coffee / dessert break -->
+      <section class="scene" id="scene-break">
+        <div class="yay" id="brkTitle"></div>
+        <p class="msg" id="brkSub" style="margin-top:-8px"></p>
+        <div class="cafe">
+          <canvas id="erenBreak" class="ebrk" width="16" height="16"></canvas>
+          <div class="table">
+            <div class="steam his"><i></i><i></i><i></i></div>
+            <canvas id="hisItem" class="item his" width="12" height="9"></canvas>
+            <div class="hers" id="hers">
+              <div class="steam" id="hersSteam"><i></i><i></i><i></i></div>
+              <canvas id="herItem" class="item" width="12" height="9"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="holdwrap"><div id="holdBar"></div></div>
+        <div class="msg" id="brkHint" style="margin-top:10px"></div>
+        <button class="pixel-btn" id="brkNext" style="display:none;margin-top:14px">CONTINUE &rsaquo;</button>
+      </section>
+
+      <!-- The box with no limits -->
+      <section class="scene" id="scene-note">
+        <div class="yay">Now it&rsquo;s your turn <span style="color:#f3a7b4">&#9825;</span></div>
+        <p class="msg" style="max-width:320px; margin-top:-8px">Write whatever you feel, in Bangla or English.<br>Every word will reach me.</p>
+        <p class="msg" style="max-width:320px">This box has no limits, write what you want to say my darling.</p>
+        <textarea class="ta" id="noteText" style="min-height:180px" placeholder="Write whatever is in your heart..." maxlength="5000"></textarea>
+        <div class="note-error" id="noteError"></div>
+        <button class="pixel-btn" id="noteSend">GIVE ME THE NOTIFICATION &hearts;</button>
+        <div class="note-sent" id="noteSent">
+          <div class="big"><span>&hearts;</span> Your words have reached me</div>
+          <p>Thank you for telling me what is in your heart.</p>
+          <button class="pixel-btn" id="toBloom" style="margin-top:12px">CONTINUE &rsaquo;</button>
+        </div>
       </section>
 
     </main>
@@ -528,7 +733,7 @@
   <!-- FULL-PAGE: envelope + cupid's arrow (opening scene) -->
   <section class="fullpage active" id="scene-envelope">
     <h2 class="month"><span class="hrt">&hearts;</span> A Letter for Mehnaz <span class="hrt">&hearts;</span></h2>
-    <p class="story-sub">Mikasa (Mehnaz), a little letter arrived named "To you, from 1625 meters away". Pull Cupid’s string and let it find you.</p>
+    <p class="story-sub">To Mikasa (Mehnaz), a little letter travelling from 1625 meters away. Pull Cupid’s string and let it find you.</p>
 
     <div class="envelope-wrap" id="envelopeWrap">
       <div class="envelope" id="envelope">
@@ -576,9 +781,18 @@
   <div class="ground" id="ground"></div>
   <div id="bloomMsg">
     <p class="l1">I may not see you everyday,<br>but I love you every day</p>
-    <p class="l2">You're my Mehnaz <span class="h">&hearts;</span> and I from 1625 meters away</p>
-    <p class="l3">僕を待ってくれてありがとう</p>
-    <button class="restart" id="restartBtn">Experience this little letter again</button>
+    <p class="l2">You're my Mehnaz <span class="h">&hearts;</span> and I am yours</p>
+    <p class="l3">To You, From 1625 meters away</p>
+    <div class="enjoy">
+      <p class="l4">Do you enjoy this date?</p>
+      <div id="enjoyForm">
+        <textarea class="ta dk" id="enjoyText" placeholder="Tell me..." maxlength="2000"></textarea>
+        <button class="pixel-btn" id="enjoySend" type="button">TELL ME &hearts;</button>
+        <div class="note-error" id="enjoyErr"></div>
+      </div>
+      <p class="l5" id="enjoyDone" style="display:none">Thank you, my darling &hearts;</p>
+    </div>
+    <button class="restart" id="restartBtn">read this little letter again</button>
   </div>
 </div>
 
@@ -690,6 +904,7 @@ const windowCard = document.getElementById('windowCard');
 const fullpages = document.querySelectorAll('.fullpage');
 
 function showScene(id){
+  if(typeof MOOD !== 'undefined' && MOOD[id]) setMood(MOOD[id]);
   document.querySelectorAll('.window .scene').forEach(s=>s.classList.remove('active'));
   const winScene = document.getElementById(id);
   const isWindowed = winScene && winScene.classList.contains('scene');
@@ -726,50 +941,359 @@ yesBtn.addEventListener('click', ()=>{
   celebrateYes();
 });
 
-/* ================= Mehnaz's note -> Google Form ================= */
-const noteForm = document.getElementById('noteForm');
-const noteText = document.getElementById('noteText');
-const noteError = document.getElementById('noteError');
-const noteSend = document.getElementById('noteSend');
-const noteWrite = document.getElementById('noteWrite');
-const noteSent = document.getElementById('noteSent');
-const noteMore = document.getElementById('noteMore');
+/* ================= backgrounds / moods ================= */
+const bgEl = document.getElementById('bg');
+const MOOD = {'scene-envelope':'sakura','scene-five':'sakura','scene-ask':'sakura','scene-yes':'night'};
+let curMood = '';
+(function buildBg(){
+  ['sakura','night','candle','sweet'].forEach(m=>{
+    const l = document.createElement('div'); l.className = 'bgl ' + m; l.dataset.m = m;
+    if(m === 'night'){
+      for(let i=0;i<55;i++){
+        const st = document.createElement('i'); st.className = 'star';
+        const z = 1 + Math.random()*2.5;
+        st.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;animation-delay:${Math.random()*4}s`;
+        l.appendChild(st);
+      }
+      const sh = document.createElement('i'); sh.className = 'shoot'; l.appendChild(sh);
+    }
+    if(m === 'candle' || m === 'sweet'){
+      for(let i=0;i<14;i++){
+        const b = document.createElement('i'); b.className = 'bk';
+        const z = 40 + Math.random()*90;
+        b.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${6+Math.random()*6}s;animation-delay:${-Math.random()*6}s`;
+        l.appendChild(b);
+      }
+    }
+    bgEl.appendChild(l);
+  });
+})();
+function setMood(m){
+  curMood = m;
+  bgEl.querySelectorAll('.bgl').forEach(l=> l.classList.toggle('on', l.dataset.m === m));
+}
+setInterval(()=>{
+  if(curMood !== 'sakura') return;
+  const layer = bgEl.querySelector('.sakura');
+  const p = document.createElement('div'); p.className = 'petal'; p.textContent = '❀';
+  p.style.left = Math.random()*100 + '%';
+  p.style.fontSize = (12 + Math.random()*14) + 'px';
+  p.style.animationDuration = (7 + Math.random()*5) + 's';
+  layer.appendChild(p); setTimeout(()=> p.remove(), 12500);
+}, 600);
+setMood('sakura');
 
-const FORM_ACTION = noteForm.action;
+/* ================= sending to Google Form ================= */
+const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLSdgaPGoFb5ogA7qkfwKOnDPHWKuM-rNA0B_fBc9EUy4K-UTLA/formResponse';
 const FORM_ENTRY = 'entry.1596017756';
-
-noteForm.addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const text = noteText.value.trim();
-  if(!text){
-    noteError.textContent = 'Write something first, even one word is enough ♡';
-    return;
-  }
-  noteError.textContent = '';
-  noteSend.disabled = true;
-  noteSend.textContent = 'SENDING...';
+async function sendToForm(text){
   try{
-    const body = new URLSearchParams();
-    body.append(FORM_ENTRY, text);
+    const body = new URLSearchParams(); body.append(FORM_ENTRY, text);
     await fetch(FORM_ACTION, { method:'POST', mode:'no-cors', body });
-    noteWrite.style.display = 'none';
-    noteSent.style.display = 'block';
-    const r = noteSent.getBoundingClientRect();
-    spawnJoyBurst(r.left + r.width/2, r.top + 20, 14);
-  }catch(err){
-    noteSend.disabled = false;
-    noteSend.textContent = 'GIVE ME THE NOTIFICATION ♥';
-    noteError.textContent = 'Could not send. Please check your internet and try once more ♡';
+    return true;
+  }catch(err){ return false; }
+}
+const NET_ERR = 'Could not send. Please check your internet and try once more ♡';
+const EMPTY_ERR = 'Write something first, even one word is enough ♡';
+
+/* ================= pixel items (cup, cake) ================= */
+function drawGrid(cv, g, pal){
+  cv.width = g[0].length; cv.height = g.length;
+  const c = cv.getContext('2d'); c.clearRect(0,0,cv.width,cv.height);
+  g.forEach((row,y)=>[...row].forEach((ch,x)=>{ if(ch==='.') return; c.fillStyle = pal[ch] || '#000'; c.fillRect(x,y,1,1); }));
+}
+const PAL2 = { W:'#fffdfb', K:'#6b3d1f', C:'#c9915a', D:'#e9d8cf', S:'#f3c3c8', R:'#e23b4e', P:'#ff9db1', Y:'#f1c27a', L:'#f3c3c8' };
+const CUP = [
+".WWWWWWWW...",
+".WKKKKKKW...",
+".WKCCKKKWWW.",
+".WKKKKKKW.W.",
+".WKKKKKKWWW.",
+"..WKKKKW....",
+"...WWWW.....",
+".SSSSSSSSSS.",
+"............"];
+const CAKE = [
+"....R.......",
+"...PPPPP....",
+"..PPPPPPPP..",
+".WWWWWWWWWW.",
+".YYYYYYYYYY.",
+".WWWWWWWWWW.",
+".YYYYYYYYYY.",
+"LLLLLLLLLLLL",
+"............"];
+const cupEmpty = g => g.map(r=> r.replace(/[KC]/g,'D'));
+const cakeBite = g => g.map((r,i)=> i<7 ? r.slice(0,8)+'....' : r);
+const BREAKS = {
+  coffee:  { title:'Coffee break ☕', sub:'Let’s take a little pause, just the two of us.',
+             hint:'Press and hold your cup for 3 seconds', after:'Ahh ♥ that was lovely', grid:CUP, done:cupEmpty, mood:'candle' },
+  dessert: { title:'Dessert break 🍰', sub:'Something sweet for someone sweet.',
+             hint:'Press and hold your dessert for 3 seconds', after:'Mmm ♥ so sweet', grid:CAKE, done:cakeBite, mood:'sweet' }
+};
+const HOLD_MS = 2600;
+const hers = document.getElementById('hers'), herItem = document.getElementById('herItem'), hisItem = document.getElementById('hisItem');
+const erenBreak = document.getElementById('erenBreak'), holdBar = document.getElementById('holdBar');
+const brkHint = document.getElementById('brkHint'), brkNext = document.getElementById('brkNext');
+let brkCfg = null, drank = false, holding = false, holdRaf = 0, holdT0 = 0;
+
+function enterBreak(k){
+  brkCfg = BREAKS[k]; drank = false; holding = false; setMood(brkCfg.mood);
+  document.getElementById('brkTitle').textContent = brkCfg.title;
+  document.getElementById('brkSub').textContent = brkCfg.sub;
+  drawCat(erenBreak, catNormal);
+  drawGrid(herItem, brkCfg.grid, PAL2); drawGrid(hisItem, brkCfg.grid, PAL2);
+  hisItem.classList.remove('sip'); hers.classList.remove('tilt'); hers.style.pointerEvents = '';
+  document.getElementById('hersSteam').style.display = '';
+  document.querySelector('.steam.his').style.display = '';
+  holdBar.style.width = '0'; brkHint.textContent = brkCfg.hint; brkNext.style.display = 'none';
+  showScene('scene-break');
+}
+function tickHold(){
+  const p = Math.min(1, (performance.now() - holdT0) / HOLD_MS);
+  holdBar.style.width = (p*100) + '%';
+  if(p >= 1){ holding = false; finishDrink(); return; }
+  holdRaf = requestAnimationFrame(tickHold);
+}
+hers.addEventListener('pointerdown', (e)=>{
+  if(drank) return; e.preventDefault();
+  holding = true; holdT0 = performance.now(); hers.classList.add('tilt'); brkHint.textContent = 'Keep holding… ♥';
+  tickHold();
+});
+function stopHold(){
+  if(!holding || drank) return;
+  holding = false; cancelAnimationFrame(holdRaf); holdBar.style.width = '0'; hers.classList.remove('tilt');
+  brkHint.textContent = 'A little longer, hold until the bar fills ♡';
+}
+['pointerup','pointerleave','pointercancel'].forEach(ev=> hers.addEventListener(ev, stopHold));
+hers.addEventListener('contextmenu', e=> e.preventDefault());
+function finishDrink(){
+  drank = true; hers.classList.remove('tilt'); hers.style.pointerEvents = 'none';
+  document.getElementById('hersSteam').style.display = 'none';
+  document.querySelector('.steam.his').style.display = 'none';
+  drawGrid(herItem, brkCfg.done(brkCfg.grid), PAL2);
+  setTimeout(()=>{ drawCat(erenBreak, catHappy); hisItem.classList.add('sip'); }, 500);
+  setTimeout(()=> drawGrid(hisItem, brkCfg.done(brkCfg.grid), PAL2), 1500);
+  setTimeout(()=>{
+    brkHint.textContent = brkCfg.after; brkNext.style.display = '';
+    const r = erenBreak.getBoundingClientRect();
+    spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, 16);
+  }, 2700);
+}
+brkNext.addEventListener('click', ()=> nextStep());
+
+/* ================= the date: questions + flow ================= */
+const QUESTIONS = [
+  'Do you know who I am?',
+  'What am I to you?',
+  'Which thing about me made you fall in love with me?',
+  'Why is 17/02/2026 your favorite date?',
+  'Which is the best moment between us?',
+  'What is your favorite thing about me, in your eyes?',
+  'Which things have I done that hurt you?',
+  'Which thing do you dislike the most about me?',
+  'Do you wait for me?',
+  'Is my love One sided?',
+  'Will you accept me?'
+];
+const FLOW = [
+  ...[0,1,2,3].map(i=>({t:'q', i, mood:'night'})),
+  {t:'break', k:'coffee'},
+  ...[4,5,6,7].map(i=>({t:'q', i, mood:'candle'})),
+  {t:'break', k:'dessert'},
+  ...[8,9,10].map(i=>({t:'q', i, mood:'night'})),
+  {t:'walk', mood:'night'},
+  {t:'askme', mood:'night'},
+  {t:'note', mood:'candle'},
+  {t:'ticket', mood:'sakura'}
+];
+let fi = -1, qi = 0;
+const LEADS = ['First things first…','Okay, tell me honestly…','And then…','I have been wondering…','Close your eyes for a second…',
+  'Look at me and tell me…','Be brave now…','And be honest…','This one is from my heart…','Tell me, my love…','One last thing…'];
+const REACTS = ['Hehe… I’ll keep this safe ♥','Mmm, I love hearing that.','You always know what to say.','I could listen to you all night ♥','That made me smile.'];
+const qAns = document.getElementById('qAns'), qSave = document.getElementById('qSave'), qText = document.getElementById('qText');
+const erenQ = document.getElementById('erenQ'), qBubble = document.getElementById('qBubble');
+let typeT = null, qBusy = false, qFull = '';
+
+function typeQ(text){
+  clearInterval(typeT); qFull = text; qText.textContent = ''; let i = 0;
+  typeT = setInterval(()=>{ qText.textContent = text.slice(0, ++i); if(i >= text.length) clearInterval(typeT); }, 24);
+}
+qBubble.addEventListener('click', ()=>{ clearInterval(typeT); if(qFull) qText.textContent = qFull; });
+
+function showQ(){
+  qBusy = false; qSave.disabled = false; qAns.disabled = false; qAns.value = '';
+  document.getElementById('qProg').textContent = '♥'.repeat(qi) + '♡'.repeat(QUESTIONS.length - qi);
+  document.getElementById('qLead').textContent = LEADS[qi];
+  drawCat(erenQ, catNormal);
+  showScene('scene-q');
+  typeQ(QUESTIONS[qi]);
+}
+// send in the background, retry quietly if the network hiccups
+function queueSend(text, tries = 0){
+  sendToForm(text).then(ok=>{ if(!ok && tries < 4) setTimeout(()=> queueSend(text, tries+1), 3000*(tries+1)); });
+}
+qSave.addEventListener('click', ()=>{
+  if(qBusy) return; qBusy = true; qSave.disabled = true;
+  const t = qAns.value.trim();
+  clearInterval(typeT);
+  if(t){
+    queueSend(`[Question ${qi+1}] ${QUESTIONS[qi]}\nAnswer: ${t}`);
+    qText.textContent = REACTS[Math.floor(Math.random()*REACTS.length)];
+  } else {
+    qText.textContent = 'Okay, you can tell me later ♥';
   }
+  document.getElementById('qLead').textContent = '';
+  drawCat(erenQ, catHappy);
+  const r = erenQ.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, t ? 12 : 5);
+  setTimeout(()=> nextStep(), 1400);
 });
-noteMore.addEventListener('click', ()=>{
-  noteText.value = '';
-  noteSend.disabled = false;
-  noteSend.textContent = 'GIVE ME YOUR NOTIFICATION ♥';
+
+function nextStep(){
+  fi++;
+  const st = FLOW[fi];
+  if(!st){ startBloom(); return; }
+  if(st.t === 'q'){ qi = st.i; setMood(st.mood); showQ(); }
+  else if(st.t === 'break'){ enterBreak(st.k); }
+  else if(st.t === 'walk'){ setMood(st.mood); enterWalk(); }
+  else if(st.t === 'askme'){ setMood(st.mood); enterAskMe(); }
+  else if(st.t === 'ticket'){ setMood(st.mood); showScene('scene-ticket'); }
+  else { setMood(st.mood); resetNote(); showScene('scene-note'); }
+}
+document.getElementById('fiveBtn').addEventListener('click', ()=> showScene('scene-ask'));
+document.getElementById('toQuestions').addEventListener('click', ()=>{ fi = -1; nextStep(); });
+
+/* ---- the box with no limits ---- */
+const noteText = document.getElementById('noteText'), noteError = document.getElementById('noteError');
+const noteSend = document.getElementById('noteSend'), noteSent = document.getElementById('noteSent');
+function resetNote(){
+  noteText.value = ''; noteText.disabled = false; noteError.textContent = '';
+  noteSend.style.display = ''; noteSend.disabled = false; noteSend.textContent = 'GIVE ME THE NOTIFICATION ♥';
   noteSent.style.display = 'none';
-  noteWrite.style.display = '';
-  noteText.focus();
+}
+noteSend.addEventListener('click', async ()=>{
+  const t = noteText.value.trim();
+  if(!t){ noteError.textContent = EMPTY_ERR; return; }
+  noteError.textContent = ''; noteSend.disabled = true; noteSend.textContent = 'SENDING...';
+  const ok = await sendToForm(`[Final note, the box with no limits]\n${t}`);
+  if(!ok){ noteSend.disabled = false; noteSend.textContent = 'GIVE ME THE NOTIFICATION ♥'; noteError.textContent = NET_ERR; return; }
+  noteText.disabled = true; noteSend.style.display = 'none'; noteSent.style.display = 'block';
+  const r = noteSent.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + 20, 14);
 });
+document.getElementById('toBloom').addEventListener('click', ()=> nextStep());
+document.getElementById('ticketBtn').addEventListener('click', ()=> nextStep());
+
+/* ---- a short walk: 1625 m -> 0 m ---- */
+const erenWalk = document.getElementById('erenWalk'), distNum = document.getElementById('distNum');
+const scarf = document.getElementById('scarf'), scarfBtn = document.getElementById('scarfBtn');
+const walkBtn = document.getElementById('walkBtn'), walkHint = document.getElementById('walkHint'), walkNext = document.getElementById('walkNext');
+let wp = 0, walking = false, wRaf = 0, wLast = 0;
+function setWalk(p){
+  const sc = .28 + .72*p, bob = walking ? Math.sin(performance.now()/120) * 2 * sc : 0;
+  erenWalk.style.transform = `translate(-50%, ${p*72 + bob}px) scale(${sc})`;
+  distNum.textContent = Math.round(1625 * (1 - p));
+}
+function enterWalk(){
+  wp = 0; walking = false; drawCat(erenWalk, catNormal); setWalk(0);
+  walkNext.style.display = 'none'; walkBtn.style.display = ''; scarfBtn.style.display = 'none';
+  scarf.className = ''; drawGrid(scarf, SCARF, PALS);
+  walkHint.textContent = 'Hold the button and let me walk to you';
+  showScene('scene-walk');
+}
+function walkTick(t){
+  if(!walking) return;
+  wp = Math.min(1, wp + Math.min(50, t - wLast) / 5000); wLast = t; setWalk(wp);
+  if(wp >= 1){ walking = false; arrived(); return; }
+  wRaf = requestAnimationFrame(walkTick);
+}
+const PALS = { M:'#8e1b2b', L:'#b3303f', D:'#5f1220' };
+const SCARF = [
+"................",
+"..MMMMMMMMMMMM..",
+".MLLLMMMMMMMMMM.",
+".MMMMMMMMMMMMMM.",
+"..DDDDDDDDMMMM..",
+"........MMMMM...",
+"........MLMMM...",
+"........MMMMM...",
+"........DDDDD..."];
+function arrived(){
+  drawCat(erenWalk, catHappy); walkBtn.style.display = 'none';
+  walkHint.textContent = 'I made it. Not so far after all ♥';
+  const r = erenWalk.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, 12);
+  setTimeout(()=>{
+    scarf.classList.add('show'); walkHint.textContent = 'I brought you something.'; scarfBtn.style.display = '';
+  }, 1700);
+}
+scarfBtn.addEventListener('click', ()=>{
+  scarfBtn.style.display = 'none'; scarf.classList.remove('show'); scarf.classList.add('taken');
+  walkHint.textContent = 'For my Mikasa. Keep it warm ♥';
+  const r = scarf.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top, 14);
+  setTimeout(()=>{ walkNext.style.display = ''; }, 1800);
+});
+walkBtn.addEventListener('pointerdown', (e)=>{ e.preventDefault(); if(wp >= 1) return; walking = true; wLast = performance.now(); wRaf = requestAnimationFrame(walkTick); });
+['pointerup','pointerleave','pointercancel'].forEach(ev=> walkBtn.addEventListener(ev, ()=>{ walking = false; cancelAnimationFrame(wRaf); setWalk(wp); }));
+walkBtn.addEventListener('contextmenu', e=> e.preventDefault());
+walkNext.addEventListener('click', ()=> nextStep());
+
+/* ---- Mehnaz asks Eren, then a kiss ---- */
+const erenAm = document.getElementById('erenAm'), amText = document.getElementById('amText'), amBubble = document.getElementById('amBubble');
+const amWrite = document.getElementById('amWrite'), amKiss = document.getElementById('amKiss'), amAns = document.getElementById('amAns');
+const amNext = document.getElementById('amNext'), kissBtn = document.getElementById('kissBtn'), kissBar = document.getElementById('kissBar');
+const kissHint = document.getElementById('kissHint');
+const KISS_MS = 2200;
+let amT = null, kissing = false, kissDone = false, kissRaf = 0, kissT0 = 0, kissFx = 0;
+
+function amSay(text, pop){
+  clearInterval(amT); amText.textContent = ''; let i = 0;
+  amBubble.classList.remove('pop'); if(pop){ void amBubble.offsetWidth; amBubble.classList.add('pop'); }
+  amT = setInterval(()=>{ amText.textContent = text.slice(0, ++i); if(i >= text.length) clearInterval(amT); }, 28);
+}
+function enterAskMe(){
+  kissing = false; kissDone = false; amAns.value = ''; document.getElementById('amErr').textContent = '';
+  amWrite.style.display = ''; amKiss.style.display = 'none'; amNext.style.display = 'none';
+  document.getElementById('amSend').disabled = false; kissBar.style.width = '0';
+  erenAm.classList.remove('kiss'); drawCat(erenAm, catNormal);
+  showScene('scene-askme');
+  amSay('Now you ask me. Anything you want.');
+}
+document.getElementById('amSend').addEventListener('click', ()=>{
+  const t = amAns.value.trim();
+  if(!t){ nextStep(); return; }   // nothing to ask: just move on
+  document.getElementById('amSend').disabled = true;
+  queueSend(`[Mehnaz's questions for me]\n${t}`);
+  amWrite.style.display = 'none'; amKiss.style.display = '';
+  kissHint.textContent = 'Press and hold the button';
+  amSay('I will answer you if you kiss me');
+});
+function kissTick(){
+  const p = Math.min(1, (performance.now() - kissT0) / KISS_MS);
+  kissBar.style.width = (p*100) + '%';
+  if(p >= 1){ kissing = false; clearInterval(kissFx); finishKiss(); return; }
+  kissRaf = requestAnimationFrame(kissTick);
+}
+kissBtn.addEventListener('pointerdown', (e)=>{
+  if(kissDone) return; e.preventDefault();
+  kissing = true; kissT0 = performance.now(); erenAm.classList.add('kiss'); drawCat(erenAm, catHappy);
+  kissHint.textContent = 'Keep holding… ♥';
+  kissFx = setInterval(()=>{ const r = kissBtn.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top, 2); }, 180);
+  kissTick();
+});
+function stopKiss(){
+  if(!kissing || kissDone) return;
+  kissing = false; cancelAnimationFrame(kissRaf); clearInterval(kissFx); kissBar.style.width = '0';
+  erenAm.classList.remove('kiss'); drawCat(erenAm, catNormal); kissHint.textContent = 'A little longer… ♡';
+}
+['pointerup','pointerleave','pointercancel'].forEach(ev=> kissBtn.addEventListener(ev, stopKiss));
+kissBtn.addEventListener('contextmenu', e=> e.preventDefault());
+function finishKiss(){
+  kissDone = true; amKiss.style.display = 'none';
+  erenAm.classList.remove('kiss'); drawCat(erenAm, catHappy);
+  const r = erenAm.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, 22);
+  amSay('I will add these answers on the next update of this page, so don’t lose it, my love ♥', true);
+  setTimeout(()=>{ amNext.style.display = ''; }, 2600);
+}
+amNext.addEventListener('click', ()=> nextStep());
 
 /* ================= envelope + cupid arrow ================= */
 const envelope = document.getElementById('envelope');
@@ -913,7 +1437,7 @@ function shootArrow(){
     setTimeout(()=>{
       envelope.classList.remove('hit');
       envelope.classList.add('open');
-      setTimeout(()=> showScene('scene-ask'), 500);
+      setTimeout(()=> showScene('scene-five'), 500);
     }, 500);
   }, 430);
 }
@@ -1052,7 +1576,7 @@ function runFloatingHearts(token){
   })();
 }
 bloomScene.addEventListener('click', (e)=>{
-  if(e.target.closest('#restartBtn')) return;
+  if(e.target.closest('#restartBtn, .enjoy')) return;
   if(bloomBursts[0]) bloomBursts[0](e.clientX, e.clientY, 18);
 });
 
@@ -1144,14 +1668,25 @@ function runHeartSwarm(token){
   })();
 }
 
-/* ---- surprise + restart ---- */
-document.getElementById('toGift').addEventListener('click', startBloom);
+/* ---- "Do you enjoy this date?" + restart ---- */
+const enjoyText = document.getElementById('enjoyText'), enjoyErr = document.getElementById('enjoyErr');
+const enjoySend = document.getElementById('enjoySend');
+enjoySend.addEventListener('click', async ()=>{
+  const t = enjoyText.value.trim();
+  if(!t){ enjoyErr.textContent = 'Tell me, even one word ♡'; return; }
+  enjoyErr.textContent = ''; enjoySend.disabled = true; enjoySend.textContent = 'SENDING...';
+  const ok = await sendToForm(`[Do you enjoy this date?]\nAnswer: ${t}`);
+  if(!ok){ enjoySend.disabled = false; enjoySend.textContent = 'TELL ME ♥'; enjoyErr.textContent = NET_ERR; return; }
+  document.getElementById('enjoyForm').style.display = 'none';
+  document.getElementById('enjoyDone').style.display = 'block';
+  if(bloomBursts[0]) bloomBursts[0](innerWidth/2, innerHeight/2, 30);
+});
 
 document.getElementById('restartBtn').addEventListener('click', ()=>{
   stopBloom();
   bloomScene.classList.remove('active');
   bloomMsg.classList.remove('show');
-  // reset envelope scene
+  // envelope scene
   envelopeHit = false;
   envelope.classList.remove('open', 'hit');
   arrowHint.style.display = '';
@@ -1159,13 +1694,16 @@ document.getElementById('restartBtn').addEventListener('click', ()=>{
   arrowGroup.style.transition = 'none';
   arrowGroup.style.opacity = '1';
   setKnob(100, startY, true);
-  // reset ask / yes scenes
+  // ask / yes scenes
   btnRow.classList.remove('floating');
   noBtn.style.left = ''; noBtn.style.top = '';
   document.getElementById('catHappy').classList.remove('celebrate');
-  noteText.value = ''; noteError.textContent = '';
-  noteSend.disabled = false; noteSend.textContent = 'GIVE ME THE NOTIFICATION ♥';
-  noteSent.style.display = 'none'; noteWrite.style.display = '';
+  // date flow
+  fi = -1; qi = 0; resetNote();
+  enjoyText.value = ''; enjoyErr.textContent = '';
+  enjoySend.disabled = false; enjoySend.textContent = 'TELL ME ♥';
+  document.getElementById('enjoyForm').style.display = '';
+  document.getElementById('enjoyDone').style.display = 'none';
   showScene('scene-envelope');
 });
 </script>
