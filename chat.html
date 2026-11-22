@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Our Chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#efe6f3; --card:#ffffff; --ink:#2b2233; --muted:#8a7d9b;
+  --rose:#c2477b; --rose-soft:#f7d9e6; --line:#e2d6ea;
+  --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{font-family:"Nunito",system-ui,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+button,input{font:inherit}
+.hidden{display:none!important}
+
+/* login */
+#login{height:100%;display:grid;place-items:center;padding:24px}
+.login-box{width:100%;max-width:340px;background:var(--card);padding:28px 24px;border-radius:22px;box-shadow:0 10px 40px rgba(120,70,130,.15)}
+.login-box h1{font-size:26px;font-weight:800;color:var(--rose);margin-bottom:4px}
+.login-box p{color:var(--muted);font-size:14px;margin-bottom:20px}
+.login-box input{width:100%;padding:13px 14px;margin-bottom:10px;border:1.5px solid var(--line);border-radius:12px;background:#fbf8fc;color:var(--ink)}
+.login-box input:focus,#msg:focus{outline:2px solid var(--rose);outline-offset:1px}
+.btn{width:100%;padding:13px;border:0;border-radius:12px;background:var(--rose);color:#fff;font-weight:800;cursor:pointer}
+.btn:active{transform:scale(.98)}
+#err{color:#b3261e;font-size:13px;min-height:18px;margin-top:10px}
+
+/* chat */
+#app{height:100%;display:flex;flex-direction:column;max-width:720px;margin:0 auto;background:var(--bg)}
+header{padding:calc(12px + var(--safe-top)) 16px 12px;display:flex;align-items:center;justify-content:space-between;background:var(--card);border-bottom:1px solid var(--line)}
+header h2{font-size:18px;font-weight:800;color:var(--rose)}
+#logout{background:none;border:1.5px solid var(--line);color:var(--muted);border-radius:10px;padding:6px 12px;font-weight:600;cursor:pointer}
+#list{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
+.empty{margin:auto;color:var(--muted);text-align:center;font-size:14px}
+.day{align-self:center;font-size:12px;color:var(--muted);margin:10px 0 4px}
+.m{max-width:80%;padding:9px 13px 6px;border-radius:18px;line-height:1.4;word-wrap:break-word;overflow-wrap:anywhere;white-space:pre-wrap}
+.m time{display:block;font-size:11px;margin-top:3px;opacity:.65;text-align:right}
+.me{align-self:flex-end;background:var(--rose);color:#fff;border-bottom-right-radius:5px}
+.them{align-self:flex-start;background:var(--card);border-bottom-left-radius:5px;box-shadow:0 1px 3px rgba(80,40,100,.08)}
+form{display:flex;gap:8px;padding:10px 12px calc(10px + var(--safe-bottom));background:var(--card);border-top:1px solid var(--line)}
+#msg{flex:1;padding:12px 14px;border:1.5px solid var(--line);border-radius:22px;background:#fbf8fc;color:var(--ink);resize:none;max-height:120px}
+#send{width:46px;height:46px;border:0;border-radius:50%;background:var(--rose);color:#fff;cursor:pointer;display:grid;place-items:center}
+#send:disabled{opacity:.5}
+@media (prefers-reduced-motion:reduce){#list{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<section id="login">
+  <div class="login-box">
+    <h1>Our Chat</h1>
+    <p>Only the two of us can come in.</p>
+    <input id="email" type="text" placeholder="Username" autocomplete="username" autocapitalize="none" spellcheck="false">
+    <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+    <button class="btn" id="loginBtn">Log in</button>
+    <div id="err" role="alert"></div>
+  </div>
+</section>
+
+<section id="app" class="hidden">
+  <header>
+    <h2>Our Chat</h2>
+    <button id="logout">Log out</button>
+  </header>
+  <div id="list"><div class="empty">No messages yet. Say hi!</div></div>
+  <form id="form">
+    <textarea id="msg" rows="1" placeholder="Write a message" aria-label="Message"></textarea>
+    <button id="send" type="submit" aria-label="Send message">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </form>
+</section>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, orderBy, limitToLast, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB0bpAm9BCnjFh1MsMi6vkKEDYI_IQWLEI",
+  authDomain: "our-chat-90ea8.firebaseapp.com",
+  projectId: "our-chat-90ea8",
+  storageBucket: "our-chat-90ea8.firebasestorage.app",
+  messagingSenderId: "199729357758",
+  appId: "1:199729357758:web:af60b7ed8106cd46440fef"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const $ = id => document.getElementById(id);
+let unsub = null;
+
+function showError(e){
+  const c = e && e.code || "";
+  const map = {
+    "auth/invalid-credential":"Wrong username or password. Check both and try again.",
+    "auth/invalid-email":"That username is not valid. Use letters and numbers only.",
+    "auth/too-many-requests":"Too many tries. Wait a few minutes and try again.",
+    "auth/network-request-failed":"No internet connection. Check your network and try again.",
+    "auth/unauthorized-domain":"This site is not allowed yet. Add it under Authentication > Settings > Authorized domains."
+  };
+  $("err").textContent = map[c] || ("Could not log in (" + (c || "unknown error") + ").");
+}
+
+$("loginBtn").addEventListener("click", async () => {
+  $("err").textContent = "";
+  const name = $("email").value.trim().toLowerCase().replace(/\s+/g, "");
+  const login = name.includes("@") ? name : name + "@ourchat.app";
+  try { await signInWithEmailAndPassword(auth, login, $("pass").value); }
+  catch(e){ showError(e); }
+});
+$("pass").addEventListener("keydown", e => { if(e.key === "Enter") $("loginBtn").click(); });
+$("logout").addEventListener("click", () => signOut(auth));
+
+onAuthStateChanged(auth, user => {
+  if(user){
+    $("login").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    listen(user);
+  } else {
+    if(unsub){ unsub(); unsub = null; }
+    $("app").classList.add("hidden");
+    $("login").classList.remove("hidden");
+    $("pass").value = "";
+  }
+});
+
+function listen(user){
+  if(unsub) unsub();
+  const q = query(collection(db, "messages"), orderBy("createdAt"), limitToLast(300));
+  unsub = onSnapshot(q, snap => {
+    const list = $("list");
+    const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 120;
+    list.textContent = "";
+    if(snap.empty){
+      const d = document.createElement("div");
+      d.className = "empty"; d.textContent = "No messages yet. Say hi!";
+      list.appendChild(d); return;
+    }
+    let lastDay = "";
+    snap.forEach(doc => {
+      const m = doc.data({ serverTimestamps: "estimate" });
+      const t = m.createdAt ? m.createdAt.toDate() : new Date();
+      const day = t.toLocaleDateString([], { day:"numeric", month:"short", year:"numeric" });
+      if(day !== lastDay){
+        const dd = document.createElement("div");
+        dd.className = "day"; dd.textContent = day;
+        list.appendChild(dd); lastDay = day;
+      }
+      const el = document.createElement("div");
+      el.className = "m " + (m.uid === user.uid ? "me" : "them");
+      el.textContent = m.text;
+      const tm = document.createElement("time");
+      tm.textContent = t.toLocaleTimeString([], { hour:"numeric", minute:"2-digit" });
+      el.appendChild(tm);
+      list.appendChild(el);
+    });
+    if(nearBottom || list.dataset.first !== "1"){
+      list.scrollTop = list.scrollHeight;
+      list.dataset.first = "1";
+    }
+  }, err => {
+    $("list").textContent = "";
+    const d = document.createElement("div");
+    d.className = "empty";
+    d.textContent = "Can't load messages. Check your internet and the Firestore rules.";
+    $("list").appendChild(d);
+    console.error(err);
+  });
+}
+
+const msg = $("msg");
+msg.addEventListener("input", () => { msg.style.height = "auto"; msg.style.height = Math.min(msg.scrollHeight, 120) + "px"; });
+msg.addEventListener("keydown", e => {
+  if(e.key === "Enter" && !e.shiftKey && window.matchMedia("(min-width:700px)").matches){
+    e.preventDefault(); $("form").requestSubmit();
+  }
+});
+
+$("form").addEventListener("submit", async e => {
+  e.preventDefault();
+  const text = msg.value.trim();
+  const user = auth.currentUser;
+  if(!text || !user) return;
+  $("send").disabled = true;
+  try{
+    await addDoc(collection(db, "messages"), { text, uid: user.uid, createdAt: serverTimestamp() });
+    msg.value = ""; msg.style.height = "auto";
+  }catch(err){
+    alert("Message not sent. Check your internet and try again.");
+    console.error(err);
+  }
+  $("send").disabled = false;
+  msg.focus();
+});
+</script>
+</body>
+</html>
