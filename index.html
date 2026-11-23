@@ -654,6 +654,28 @@
   .lp .jp{ font-family:'Noto Serif JP','Hiragino Mincho ProN','Yu Mincho',serif; font-weight:700; font-size:19px; line-height:1.5; color:#ffe3e8; text-shadow:0 0 14px rgba(255,12,70,.8); }
   .lp .en{ font-size:13px; font-style:italic; color:#ffccd5; margin-top:2px; opacity:.92; }
   @media (max-height:760px){ .lp .jp{ font-size:16px } .lp .en{ font-size:12px } .lp{ margin-bottom:8px } #bloomMsg .l2{ font-size:34px } }
+  /* movie tickets */
+.mt{ width:100%; max-width:290px; margin:8px 0; position:relative; }
+.mt .top{ background:#fff8f4; border:3px solid var(--coral); border-bottom:0; border-radius:10px 10px 0 0; padding:12px 14px; text-align:left; color:var(--ink); }
+.mt .top b{ font-size:11px; letter-spacing:3px; color:var(--red); }
+.mt .top .t{ font-family:'Great Vibes',cursive; font-size:36px; line-height:1.1; }
+.mt .top .r{ font-size:12px; color:#b5716f; }
+.mt .stub{ background:#fff8f4; border:3px solid var(--coral); border-top:3px dashed var(--coral); border-radius:0 0 10px 10px; padding:12px 14px; font-size:11px; letter-spacing:2px; color:#b5716f; display:flex; justify-content:space-between; touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none; transform-origin:0 0; transition:transform .6s ease, opacity .6s ease; }
+.mt.torn .stub{ transform:translate(30px,80px) rotate(18deg); opacity:0; pointer-events:none; }
+/* cinema */
+.hall{ position:relative; width:100%; border-radius:12px; overflow:hidden; border:3px solid #4a0d16; background:radial-gradient(ellipse at 50% 0,#3a0a12,#16030a 70%); padding-top:14px; }
+.scr{ position:relative; width:84%; aspect-ratio:16/9; margin:0 auto; background:#f3f0f0; border-radius:4px; box-shadow:0 0 50px 8px rgba(255,255,255,.45); display:flex; align-items:center; justify-content:center; transition:background .6s; }
+.scr.on{ background:#050505; }
+.scr video{ height:100%; aspect-ratio:1; display:none; background:#000; }
+.scr.on video{ display:block; }
+#cinPlay{ position:absolute; margin:0; }
+.aud{ height:26px; margin:14px 8% 0; background:radial-gradient(circle at 8px 14px,#2a060d 0 7px,transparent 8px) 0 0/34px 26px repeat-x; }
+.seats2{ position:relative; height:150px; margin-top:6px; }
+.pp{ position:absolute; bottom:40px; left:50%; transform:translateX(-50%); display:flex; }
+.pp canvas{ width:84px; height:77px; image-rendering:pixelated; filter:drop-shadow(0 0 4px rgba(255,90,100,.5)); }
+.pp canvas + canvas{ margin-left:-6px; transform:rotate(3deg); }
+.fseat{ position:absolute; bottom:0; width:34%; height:62px; background:linear-gradient(#8a1424,#5e0c18); border-radius:22px 22px 0 0; border:2px solid #3a0710; }
+.fseat.f1{ left:-4%; } .fseat.f2{ left:33%; } .fseat.f3{ left:70%; }
 </style>
 </head>
 <body>
@@ -829,6 +851,25 @@
           <button class="pixel-btn" id="toBloom" style="margin-top:12px">CONTINUE &rsaquo;</button>
         </div>
       </section>
+<!-- Movie tickets -->
+<section class="scene" id="scene-mticket">
+  <div class="qprog">TWO TICKETS TO A MOVIE</div>
+  <div class="mt"><div class="top"><b>CINEMA &middot; ADMIT ONE</b><div class="t">Another Love</div><div class="r">Eren &amp; Mikasa &middot; ROW H &middot; SEAT 7</div></div><div class="stub"><span>MEHNAZ</span><span>&#9986; SWIPE TO TEAR &rarr;</span></div></div>
+  <div class="mt"><div class="top"><b>CINEMA &middot; ADMIT ONE</b><div class="t">Another Love</div><div class="r">Eren &amp; Mikasa &middot; ROW H &middot; SEAT 8</div></div><div class="stub"><span>EREN</span><span>&#9986; SWIPE TO TEAR &rarr;</span></div></div>
+  <div class="msg" id="mtHint" style="margin-top:6px">Drag along the dotted line to tear each ticket</div>
+  <button class="pixel-btn" id="mtGo" style="display:none;margin-top:14px">ENTER THE CINEMA &hearts;</button>
+</section>
+
+<!-- Cinema -->
+<section class="scene" id="scene-cinema">
+  <div class="hall">
+    <div class="scr" id="cinScr"><video id="cinVid" src="another-love.mp4" playsinline preload="auto"></video><button class="pixel-btn" id="cinPlay">&#9654; PLAY</button></div>
+    <div class="aud"></div>
+    <div class="seats2"><div class="pp"><canvas id="cinE"></canvas><canvas id="cinM"></canvas></div><i class="fseat f1"></i><i class="fseat f2"></i><i class="fseat f3"></i></div>
+  </div>
+  <div class="msg" style="margin-top:10px">Just us, in the dark &hearts;</div>
+  <button class="pixel-btn" id="cinNext" style="display:none;margin-top:14px">CONTINUE &rsaquo;</button>
+</section>
 
     </main>
   </div>
@@ -1299,6 +1340,8 @@ const FLOW = [
   {t:'game', mood:'night'},
   {t:'askme', mood:'night'},
   {t:'note', mood:'candle'},
+  {t:'mticket', mood:'candle'},
+  {t:'cinema', mood:'night'},
   {t:'ticket', mood:'sakura'}
 ];
 let fi = -1, qi = 0;
@@ -1353,6 +1396,8 @@ function nextStep(){
   else if(st.t === 'game'){ setMood(st.mood); enterGame(); }
   else if(st.t === 'askme'){ setMood(st.mood); enterAskMe(); }
   else if(st.t === 'ticket'){ setMood(st.mood); showScene('scene-ticket'); }
+  else if(st.t === 'mticket'){ setMood(st.mood); enterMTicket(); }
+  else if(st.t === 'cinema'){ setMood(st.mood); enterCinema(); }
   else { setMood(st.mood); resetNote(); showScene('scene-note'); }
 }
 document.getElementById('fiveBtn').addEventListener('click', ()=> showScene('scene-ask'));
@@ -1646,6 +1691,55 @@ function finishKiss(){
   setTimeout(()=>{ amNext.style.display = ''; }, 2600);
 }
 amNext.addEventListener('click', ()=> nextStep());
+/* ---- movie tickets: swipe to tear ---- */
+let mtDone = 0;
+function enterMTicket(){
+  mtDone = 0;
+  document.querySelectorAll('#scene-mticket .mt').forEach(t=> t.classList.remove('torn'));
+  document.getElementById('mtGo').style.display = 'none';
+  document.getElementById('mtHint').textContent = 'Drag along the dotted line to tear each ticket';
+  showScene('scene-mticket');
+}
+document.querySelectorAll('#scene-mticket .mt').forEach(t=>{
+  const st = t.querySelector('.stub'); let x0 = null;
+  st.addEventListener('pointerdown', e=>{ if(t.classList.contains('torn')) return; x0 = e.clientX; st.setPointerCapture(e.pointerId); st.style.transition = 'none'; });
+  st.addEventListener('pointermove', e=>{
+    if(x0 === null) return;
+    const p = Math.max(0, Math.min(1, (e.clientX - x0) / (st.offsetWidth * .8)));
+    st.style.transform = `rotate(${p*7}deg)`;
+    if(p >= 1){ x0 = null; st.style.transition = ''; st.style.transform = ''; t.classList.add('torn');
+      const r = t.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.bottom - 20, 8);
+      if(++mtDone >= 2){ document.getElementById('mtGo').style.display = ''; document.getElementById('mtHint').textContent = 'Both torn ♥ our seats are waiting'; } }
+  });
+  const rel = ()=>{ if(x0 === null) return; x0 = null; st.style.transition = ''; st.style.transform = ''; };
+  st.addEventListener('pointerup', rel); st.addEventListener('pointercancel', rel);
+});
+document.getElementById('mtGo').addEventListener('click', ()=> nextStep());
+
+/* ---- cinema: Eren and Mehnaz side by side, video on the screen ---- */
+const cinVid = document.getElementById('cinVid'), cinScr = document.getElementById('cinScr');
+const cinPlay = document.getElementById('cinPlay'), cinNext = document.getElementById('cinNext');
+const BACK_E = [
+"...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",
+"..HHHHHHHH..","...SSSSSS...",".JJJJSSJJJJ.","JJJJJJJJJJJJ","JJJJJJJJJJJJ"];
+const BACK_M = [
+"...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",
+".HHHHHHHHHH.",".hHHHHHHHHh.","..ZZZZZZZZ..","nnnnnnnnnnnn","nnnnnnnnnnnn"];
+let cinT = 0;
+function enterCinema(){
+  drawGrid(document.getElementById('cinE'), BACK_E, {H:'#3b2418', S:'#fbd9c3', J:'#a8702f'});
+  drawGrid(document.getElementById('cinM'), BACK_M, {H:'#a8d8ff', h:'#6aaef0', Z:'#8e1b2b', n:'#1f3f9a'});
+  clearTimeout(cinT); cinVid.pause(); cinVid.currentTime = 0;
+  cinScr.classList.remove('on'); cinPlay.style.display = ''; cinNext.style.display = 'none';
+  showScene('scene-cinema');
+}
+cinPlay.addEventListener('click', ()=>{
+  cinScr.classList.add('on'); cinPlay.style.display = 'none';
+  cinVid.play().catch(()=>{});
+  cinT = setTimeout(()=>{ cinNext.style.display = ''; }, 10000);   // safety: never stuck if the video fails
+});
+cinVid.addEventListener('ended', ()=>{ cinNext.style.display = ''; });
+cinNext.addEventListener('click', ()=>{ clearTimeout(cinT); cinVid.pause(); nextStep(); });
 
 /* ================= envelope + cupid arrow ================= */
 const envelope = document.getElementById('envelope');
