@@ -667,9 +667,13 @@
 #cinCv{ position:absolute; inset:0; width:100%; height:100%; display:block; }
 .scr{ position:absolute; left:11.11%; top:4.24%; width:77.78%; height:47.27%; display:flex; align-items:center; justify-content:center; background:transparent; }
 .scr.on{ background:#000; }
-.scr video{ height:100%; aspect-ratio:1; display:none; background:#000; cursor:pointer; }
+.scr video{ width:100%; height:100%; object-fit:contain; display:none; background:#000; cursor:pointer; }
 .scr.on video{ display:block; }
 #cinPlay{ position:absolute; margin:0; }
+.seekrow{ display:none; width:100%; align-items:center; gap:8px; margin-top:10px; font-size:12px; color:#93504f; }
+.seekrow.show{ display:flex; }
+.seekrow input{ flex:1; accent-color:var(--red); }
+.seekrow input:disabled{ opacity:.55; }
 </style>
 </head>
 <body>
@@ -860,7 +864,8 @@
     <canvas id="cinCv"></canvas>
     <div class="scr" id="cinScr"><video id="cinVid" src="another-love.mp4" playsinline preload="auto"></video><button class="pixel-btn" id="cinPlay">&#9654; PLAY</button></div>
   </div>
-  <div class="msg" style="margin-top:10px">Just us, in the dark &hearts;</div>
+  <div class="seekrow" id="seekRow"><span id="cinTime">0:00</span><input type="range" id="cinSeek" min="0" max="1000" value="0" disabled><span id="cinDur">0:00</span></div>
+<div class="msg" id="cinHint" style="margin-top:10px">Just us, in the dark &hearts;</div>
   <button class="pixel-btn" id="cinReplay" style="display:none;margin-top:12px">&#8635; WATCH AGAIN</button>
   <button class="pixel-btn" id="cinNext" style="display:none;margin-top:12px">CONTINUE &rsaquo;</button>
 </section>
@@ -1776,12 +1781,32 @@ function enterCinema(){
 cinPlay.addEventListener('click', ()=>{
   cinScr.classList.add('on'); cinPlay.style.display = 'none';
   cinVid.play().catch(()=>{});
-  cinT = setTimeout(()=>{ cinNext.style.display = ''; }, 10000);   // safety: never stuck if the video fails
+  cinT = setTimeout(()=>{ if(cinVid.currentTime < 0.5) cinNext.style.display = ''; }, 10000); // safety: never stuck if the video fails
 });
 cinVid.addEventListener('click', ()=>{ cinVid.paused ? cinVid.play() : cinVid.pause(); });
 cinVid.addEventListener('ended', ()=>{ cinNext.style.display = ''; cinReplay.style.display = ''; });
 cinReplay.addEventListener('click', ()=>{ cinReplay.style.display = 'none'; cinVid.currentTime = 0; cinVid.play().catch(()=>{}); });
 cinNext.addEventListener('click', ()=>{ clearTimeout(cinT); cinVid.pause(); nextStep(); });
+  /* ---- seek bar: locked until the first full watch ---- */
+const cinSeek = document.getElementById('cinSeek'), cinTime = document.getElementById('cinTime');
+const cinDur = document.getElementById('cinDur'), cinHint = document.getElementById('cinHint'), seekRow = document.getElementById('seekRow');
+let seeking = false;
+const fmtT = s => { s = Math.floor(s || 0); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
+const _enterCinema = enterCinema;
+enterCinema = function(){
+  _enterCinema();
+  seeking = false; cinSeek.disabled = true; cinSeek.value = 0; cinTime.textContent = '0:00';
+  seekRow.classList.remove('show'); cinHint.innerHTML = 'Just us, in the dark &hearts;';
+};
+cinPlay.addEventListener('click', ()=>{ seekRow.classList.add('show'); cinHint.innerHTML = 'Watch it till the end, my love &hearts;'; });
+cinVid.addEventListener('loadedmetadata', ()=>{ cinDur.textContent = fmtT(cinVid.duration); });
+cinVid.addEventListener('timeupdate', ()=>{
+  if(!seeking && cinVid.duration) cinSeek.value = cinVid.currentTime / cinVid.duration * 1000;
+  cinTime.textContent = fmtT(cinVid.currentTime);
+});
+cinVid.addEventListener('ended', ()=>{ cinSeek.disabled = false; cinHint.innerHTML = 'Now drag the bar to watch any moment again &hearts;'; });
+cinSeek.addEventListener('input', ()=>{ seeking = true; cinVid.currentTime = cinSeek.value / 1000 * cinVid.duration; });
+cinSeek.addEventListener('change', ()=>{ seeking = false; cinVid.play().catch(()=>{}); });
 
 /* ================= envelope + cupid arrow ================= */
 const envelope = document.getElementById('envelope');
