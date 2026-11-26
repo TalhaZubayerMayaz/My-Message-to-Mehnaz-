@@ -593,8 +593,8 @@
   /* scarf scene */
   canvas.wchar{ position:absolute; bottom:10px; width:112px; height:112px; image-rendering:pixelated; filter:drop-shadow(0 4px 6px rgba(0,0,0,.4)); }
   canvas.wchar.l{ left:30px; } canvas.wchar.r{ right:30px; }
-  canvas#scarf{ left:128px; top:150px; width:84px; height:47px; }
-  canvas#scarf.fly{ animation:none; transition: left 1s ease, top 1s ease, transform 1s ease, opacity .5s ease; left:214px; top:158px; transform:translate(-50%,0) scale(.55); }
+  canvas#scarf{ left:124px; top:176px; width:60px; height:34px; }
+  canvas#scarf.fly{ animation:none; transition: left 1s ease, top 1s ease, transform 1s ease, opacity .5s ease; left:214px; top:161px; transform:translate(-50%,0) scale(.8); }
 
   /* kiss scene */
   .pair{ display:flex; justify-content:center; align-items:flex-end; margin:6px 0 14px; }
@@ -674,6 +674,15 @@
 .seekrow.show{ display:flex; }
 .seekrow input{ flex:1; accent-color:var(--red); }
 .seekrow input:disabled{ opacity:.55; }
+.cupw .hand{ display:none; }
+#kissNo{ position:relative; transition:left .16s ease, top .16s ease, transform .12s ease; }
+#kissRow.floating #kissNo{ position:absolute; }
+canvas.eam#erenAm{ position:relative; z-index:2; }
+canvas.eam#mehAm{ position:relative; z-index:3; }
+canvas.eam.kissgo{ animation:none; transition:transform .9s ease; transform:translate(24px,-22px) rotate(10deg); }
+.kissmark{ position:absolute; left:calc(50% + 40px); top:36px; transform:translate(-50%,-50%) scale(0); font-size:22px; z-index:8; pointer-events:none; opacity:0; }
+.kissmark.show{ animation:kpop .6s cubic-bezier(.2,1.6,.4,1) forwards; }
+@keyframes kpop{ to{ transform:translate(-50%,-50%) scale(1); opacity:1; } }
 </style>
 </head>
 <body>
@@ -790,9 +799,13 @@
           <div class="skiphint">leave it empty if you have nothing to ask</div>
         </div>
         <div class="amblock" id="amKiss" style="display:none">
-          <div class="holdwrap"><div id="kissBar"></div></div>
-          <button class="pixel-btn" id="kissBtn">HOLD TO KISS &hearts;</button>
-          <div class="msg" id="kissHint" style="margin-top:10px"></div>
+        <div class="btn-row" id="kissRow">
+        <button class="pixel-btn" id="kissYes">YES</button>
+        <button class="pixel-btn" id="kissNo">NO</button>
+        </div>
+        <div class="msg" id="kissHint" style="margin-top:10px"></div>
+        <div class="holdwrap" style="display:none"><div id="kissBar"></div></div>
+        <button id="kissBtn" style="display:none"></button>
         </div>
         <button class="pixel-btn" id="amNext" style="display:none;margin-top:16px">CONTINUE &rsaquo;</button>
       </section>
@@ -1470,30 +1483,30 @@ function startServe(){
 function moveShuttle(dt){
   sx += vx*dt; sy += vy*dt;
   if(vy > 0){
-    erDecided = false; eSw = eSw > 0 && performance.now() - eSw > SW_DUR ? -1 : eSw;
+    eSw = eSw > 0 && performance.now() - eSw > SW_DUR ? -1 : eSw;
     if(sy > RY - 78 && mSw < 0) mSw = performance.now();
     if(sy >= RY-16 && sy <= RY+14 && Math.abs(sx - rx) <= 38){
-      S = Math.min(7.4, S + 0.17); vy = -S; vx = ((sx - rx) / (RW/2)) * S * 0.75;
-      { const tt = (sy - EY) / S, land = Math.max(40, Math.min(GW - 40, sx + vx * tt)); vx = (land - sx) / tt; }   // always lands inside the court
+      S = Math.min(8.6, S + 0.25); vy = -S; vx = ((sx - rx) / (RW/2)) * S * 0.75;
+      { const tt = (sy - EY) / S, land = Math.max(40, Math.min(GW - 40, sx + vx * tt)); vx = (land - sx) / tt; }
       burstAt(sx, sy); if(performance.now() - mSw > 300) mSw = performance.now() - 140;
     } else if(sy > GH + 10){ point('er'); }
   } else {
     if(sy <= EY + 60 && sy >= EY - 30 && eSw < 0) eSw = performance.now();
-    if(sy <= EY + 16 && sy >= EY - 24){
-      if(!erDecided){ erDecided = true; erSlip = Math.random() < erSlipP(); }
-      if(!erSlip && Math.abs(sx - ex) <= 36){
-        S = Math.min(7.4, S + 0.1);
-        const tx = Math.max(40, Math.min(GW-40, GW - rx + (Math.random() - .5) * 70));
-        const tt = (RY - sy) / S;
-        vy = S; vx = Math.max(-S*.8, Math.min(S*.8, (tx - sx) / tt));
-        erDecided = false; burstAt(sx, sy); if(performance.now() - eSw > 300) eSw = performance.now() - 140;
-      }
+    if(sy <= EY + 18 && sy >= EY - 26 && Math.abs(sx - ex) <= 46){
+      S = Math.min(8.6, S + 0.2);
+      const tx = Math.max(45, Math.min(GW-45, (rx < GW/2 ? GW-50 : 50) + (Math.random() - .5) * 50));
+      const tt = (RY - sy) / S;
+      vy = S; vx = Math.max(-S*.8, Math.min(S*.8, (tx - sx) / tt));
+      burstAt(sx, sy); if(performance.now() - eSw > 300) eSw = performance.now() - 140;
     }
     if(sy < -10){ point('me'); }
   }
 }
 function moveEren(dt){
-  const target = vy < 0 ? sx : GW/2, sp = erSpeed() * dt;
+  let target = GW/2;
+  if(vy < 0){ const t = Math.max(0, (sy - EY) / -vy); target = sx + vx * t; }   // go where the shuttle will arrive
+  target = Math.max(30, Math.min(GW-30, target));
+  const sp = Math.max(2.2, 3.6 - 0.2*losses) * dt;
   ex += Math.max(-sp, Math.min(sp, target - ex)); ex = Math.max(30, Math.min(GW-30, ex));
 }
 let sparks = [];
@@ -1656,8 +1669,8 @@ document.getElementById('amSend').addEventListener('click', ()=>{
   document.getElementById('amSend').disabled = true;
   queueSend(`[Mehnaz's questions for me]\n${t}`);
   amWrite.style.display = 'none'; amKiss.style.display = '';
-  kissHint.textContent = 'Press and hold the button';
-  amSay('I will answer you if you kiss me');
+  kissHint.textContent = '';
+  amSay('I will answer these questions if you permit me to give a kiss on your forehead');
 });
 function kissTick(){
   const p = Math.min(1, (performance.now() - kissT0) / KISS_MS);
@@ -1690,6 +1703,40 @@ function finishKiss(){
   setTimeout(()=>{ amNext.style.display = ''; }, 2600);
 }
 amNext.addEventListener('click', ()=> nextStep());
+  /* ---- forehead kiss: YES / NO (NO runs away) ---- */
+const kissYes = document.getElementById('kissYes'), kissNo = document.getElementById('kissNo'), kissRow = document.getElementById('kissRow');
+const kissMark = document.createElement('span'); kissMark.className = 'kissmark'; kissMark.textContent = '💋';
+document.querySelector('#scene-askme .pair').appendChild(kissMark);
+function kissDodge(){
+  kissRow.classList.add('floating');
+  const rw = kissRow.getBoundingClientRect(), bw = kissNo.getBoundingClientRect();
+  kissNo.style.left = (Math.random() * Math.max(rw.width - bw.width, 40)) + 'px';
+  kissNo.style.top = (Math.random() * 90 - 20) + 'px';
+  kissHint.textContent = 'Hehe, you cannot say no ♥';
+}
+kissNo.addEventListener('mouseenter', kissDodge);
+kissNo.addEventListener('click', e=>{ e.preventDefault(); kissDodge(); });
+kissNo.addEventListener('touchstart', e=>{ e.preventDefault(); kissDodge(); }, {passive:false});
+kissYes.addEventListener('click', ()=>{
+  if(kissDone) return; kissDone = true; amKiss.style.display = 'none';
+  amSay('Thank you, my love ♥');
+  erenAm.classList.add('kissgo');
+  mehAm.style.transition = 'transform .9s ease'; mehAm.style.transform = 'translate(-14px,10px) rotate(-5deg)';
+  setTimeout(()=>{
+    drawCat(erenAm, catBlush); drawGrid(mehAm, MEH_H, PM);
+    kissMark.classList.add('show');
+    const r = kissMark.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top, 16);
+    bigHeart.classList.add('show');
+  }, 950);
+  setTimeout(()=> amSay('I will add these answers on the next update of this page, so don’t lose it, my love ♥', true), 1900);
+  setTimeout(()=>{ amNext.style.display = ''; }, 3600);
+});
+const _enterAskMe = enterAskMe;
+enterAskMe = function(){
+  _enterAskMe();
+  erenAm.classList.remove('kissgo'); kissMark.classList.remove('show');
+  kissRow.classList.remove('floating'); kissNo.style.left = ''; kissNo.style.top = ''; kissHint.textContent = '';
+};
 /* ---- movie tickets: swipe to tear ---- */
 let mtDone = 0;
 function enterMTicket(){
