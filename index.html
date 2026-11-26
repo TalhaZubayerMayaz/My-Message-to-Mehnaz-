@@ -1444,7 +1444,7 @@ const sprEH = document.createElement('canvas'); sprEH.width = 16; sprEH.height =
 drawCat(sprE, catNormal); drawCat(sprEH, catHappy);
 const sprM = document.createElement('canvas'), sprMH = document.createElement('canvas'); let meHappy = false;
 drawGrid(sprM, MEH_N, PM); drawGrid(sprMH, MEH_H, PM);
-const WIN_PTS = 5, RY = GH - 52, EY = 86, RW = 48, SW_DUR = 260;
+const WIN_PTS = 3, RY = GH - 52, EY = 86, RW = 48, SW_DUR = 260;
 let mSw = -1, eSw = -1;
 let gState = 'idle', scMe = 0, scEr = 0, losses = 0, gTok = 0, erHappy = false;
 let rx = GW/2, rTarget = GW/2, ex = GW/2, sx = 0, sy = -60, vx = 0, vy = 0, S = 4, serveAt = 0, lastT = 0;
@@ -1476,8 +1476,8 @@ function runGame(){
   })(lastT);
 }
 function startServe(){
-  sx = ex; sy = EY + 18; S = Math.max(3.4, 3.9 - 0.15*losses); vy = S;
-  { const tt = (RY - sy) / S, tgt = GW/2 + (Math.random() - .5) * 90; vx = (tgt - sx) / tt; }   // serve always heads into the court
+  sx = ex; sy = EY + 18; S = 3.2; vy = S;
+  { const tt = (RY - sy) / S, tgt = GW/2 + (Math.random() - .5) * 90; vx = (tgt - sx) / tt; }
   erDecided = false; gState = 'play';
 }
 function moveShuttle(dt){
@@ -1485,16 +1485,16 @@ function moveShuttle(dt){
   if(vy > 0){
     eSw = eSw > 0 && performance.now() - eSw > SW_DUR ? -1 : eSw;
     if(sy > RY - 78 && mSw < 0) mSw = performance.now();
-    if(sy >= RY-16 && sy <= RY+14 && Math.abs(sx - rx) <= 38){
-      S = Math.min(8.6, S + 0.25); vy = -S; vx = ((sx - rx) / (RW/2)) * S * 0.75;
+    if(sy >= RY-16 && sy <= RY+14 && Math.abs(sx - rx) <= 50){
+      S = Math.min(5.5, S + 0.08); vy = -S; vx = ((sx - rx) / (RW/2)) * S * 0.75;
       { const tt = (sy - EY) / S, land = Math.max(40, Math.min(GW - 40, sx + vx * tt)); vx = (land - sx) / tt; }
       burstAt(sx, sy); if(performance.now() - mSw > 300) mSw = performance.now() - 140;
     } else if(sy > GH + 10){ point('er'); }
   } else {
     if(sy <= EY + 60 && sy >= EY - 30 && eSw < 0) eSw = performance.now();
-    if(sy <= EY + 18 && sy >= EY - 26 && Math.abs(sx - ex) <= 46){
-      S = Math.min(8.6, S + 0.2);
-      const tx = Math.max(45, Math.min(GW-45, (rx < GW/2 ? GW-50 : 50) + (Math.random() - .5) * 50));
+    if(sy <= EY + 18 && sy >= EY - 26 && Math.abs(sx - ex) <= 30){
+      S = Math.min(5.5, S + 0.05);
+      const tx = Math.max(45, Math.min(GW-45, GW/2 + (Math.random() - .5) * 140));
       const tt = (RY - sy) / S;
       vy = S; vx = Math.max(-S*.8, Math.min(S*.8, (tx - sx) / tt));
       burstAt(sx, sy); if(performance.now() - eSw > 300) eSw = performance.now() - 140;
@@ -1504,9 +1504,9 @@ function moveShuttle(dt){
 }
 function moveEren(dt){
   let target = GW/2;
-  if(vy < 0){ const t = Math.max(0, (sy - EY) / -vy); target = sx + vx * t; }   // go where the shuttle will arrive
+  if(vy < 0){ const t = Math.max(0, (sy - EY) / -vy); target = sx + vx * t; }
   target = Math.max(30, Math.min(GW-30, target));
-  const sp = Math.max(2.2, 3.6 - 0.2*losses) * dt;
+  const sp = Math.max(1.2, 1.9 - 0.2*losses) * dt;
   ex += Math.max(-sp, Math.min(sp, target - ex)); ex = Math.max(30, Math.min(GW-30, ex));
 }
 let sparks = [];
