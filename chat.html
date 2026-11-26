@@ -200,6 +200,7 @@ button:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
     <div id="menu" class="hidden">
       <div class="mine"><div class="av sm" id="myav"></div><span id="myname"></span></div>
       <button id="changePhoto">Change my photo</button>
+      <button id="chName">Change my name</button>
       <button id="bgBtn">Chat background</button>
       <button id="exportBtn">Export chat backup</button>
       <button id="chPass">Change password</button>
@@ -358,7 +359,9 @@ onAuthStateChanged(auth, user => {
     $("app").classList.add("home");
     paintHeader(user);
     // the admin is always a member, so make sure their own record exists before listening
-    (user.uid === ADMIN ? setDoc(doc(db, "members", user.uid), { name:"Eren" }, { merge:true }).catch(console.error) : Promise.resolve()).then(() => listen(user));
+    (user.uid === ADMIN
+      ? getDoc(doc(db, "members", user.uid)).then(d => d.exists() ? null : setDoc(doc(db, "members", user.uid), { name:"Eren" })).catch(console.error)
+      : Promise.resolve()).then(() => listen(user));
   } else {
     stopListening();
     clearComposer();
@@ -632,6 +635,14 @@ $("addMember").addEventListener("click", async () => {
   if(!name) return;
   try { await setDoc(doc(db, "members", uid), { name }); alert(name + " added."); }
   catch(err){ alert("Could not add. Check the Firestore rules."); console.error(err); }
+});
+$("chName").addEventListener("click", async () => {
+  const user = auth.currentUser; if(!user) return;
+  const n = (prompt("Your name in OurChat (up to 30 characters):", NAMES[user.uid] || "") || "").trim();
+  if(!n) return;
+  if(n.length > 30){ alert("Please use 30 characters or fewer."); return; }
+  try { await updateDoc(doc(db, "members", user.uid), { name: n }); }
+  catch(err){ alert("Could not change the name. Check your internet and the Firestore rules."); console.error(err); }
 });
 $("chPass").addEventListener("click", async () => {
   const user = auth.currentUser; if(!user) return;
