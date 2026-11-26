@@ -206,6 +206,7 @@ button:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
       <button id="changePhoto">Change my photo</button>
       <button id="chName">Change my name</button>
       <button id="grpBtn" class="hidden">Group name and photo</button>
+      <button id="delGrp" class="warn hidden">Delete group</button>
       <button id="bgBtn">Chat background</button>
       <button id="exportBtn">Export chat backup</button>
       <button id="chPass">Change password</button>
@@ -287,7 +288,7 @@ button:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, setPersistence, browserSessionPersistence, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, deleteDoc, setDoc, updateDoc, deleteField, query, orderBy, limitToLast, onSnapshot, serverTimestamp, getDocs, getDoc, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, deleteDoc, setDoc, updateDoc, deleteField, query, orderBy, limitToLast, onSnapshot, serverTimestamp, getDocs, getDoc, where, writeBatch } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB0bpAm9BCnjFh1MsMi6vkKEDYI_IQWLEI",
@@ -693,6 +694,27 @@ $("gSave").addEventListener("click", async () => {
   try { await updateDoc(doc(db, "chats", cur.id), upd); $("grpSheet").classList.add("hidden"); }
   catch(err){ alert("Could not save. Check your internet and the Firestore rules."); console.error(err); }
 });
+$("delGrp").addEventListener("click", async () => {
+  const user = auth.currentUser;
+  if(!user || !cur || cur.type !== "group" || cur.createdBy !== user.uid) return;
+  const id = cur.id, label = cur.name || "Group";
+  if(!confirm("Delete the group “" + label + "” for everyone? All its messages and photos will be erased and this can’t be undone.")) return;
+  closeChat();
+  try {
+    for(const sub of ["messages", "seen"]){
+      const snap = await getDocs(collection(db, "chats", id, sub));
+      for(let i = 0; i < snap.docs.length; i += 400){
+        const b = writeBatch(db);
+        snap.docs.slice(i, i + 400).forEach(d => b.delete(d.ref));
+        await b.commit();
+      }
+    }
+    await deleteDoc(doc(db, "chats", id));
+  } catch(err){
+    alert("Could not delete the group. Check your internet and the Firestore rules.");
+    console.error(err);
+  }
+});
 $("chPass").addEventListener("click", async () => {
   const user = auth.currentUser; if(!user) return;
   const p = prompt("New password (at least 8 characters):");
@@ -839,6 +861,7 @@ function paintHeader(user){
   $("rmPhoto").classList.toggle("hidden", !avatars[user.uid]);
   $("addMember").classList.toggle("hidden", user.uid !== ADMIN);
   $("grpBtn").classList.toggle("hidden", !(cur && cur.type === "group"));
+  $("delGrp").classList.toggle("hidden", !(cur && cur.type === "group" && cur.createdBy === user.uid));
   if(cur){
     const t = chatTitle(cur, user.uid);
     $("title").textContent = t;
