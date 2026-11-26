@@ -244,8 +244,8 @@ button:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
 
 <div id="newSheet" class="hidden">
   <div class="sheet" role="dialog" aria-label="New chat">
-    <h3>New chat</h3>
-    <p class="hint">Pick one person for a private chat, or 2 to 4 people for a group.</p>
+    <h3>New group</h3>
+    <p class="hint">Pick 2 to 4 people you already chat with. To message someone new, search their name on the main screen.</p>
     <div id="people"></div>
     <input id="gname" class="hidden" placeholder="Group name" maxlength="40">
     <button class="btn" id="startChat" type="button">Start chat</button>
@@ -366,7 +366,16 @@ document.addEventListener("click", () => $("menu").classList.add("hidden"));
 $("logout").addEventListener("click", () => signOut(auth));
 $("clearBtn").addEventListener("click", async () => {
   const user = auth.currentUser; if(!user) return;
-  if(!cur){ alert("Open a chat first."); return; }
+  if(!cur){
+    if(!chatsList.length){ alert("There are no chats to clear."); return; }
+    if(!confirm("Clear all your chats for you? Every private chat and group will be emptied and removed from your list. Other people keep their messages, and a chat comes back if someone sends a new message.")) return;
+    try {
+      const f = {};
+      chatsList.forEach(c => { f["clr_" + c.id] = serverTimestamp(); });
+      await setDoc(doc(db, "users", user.uid), f, { merge:true });
+    } catch(err){ alert("Could not clear the chats. Check your internet and the Firestore rules."); console.error(err); }
+    return;
+  }
   if(!confirm("Clear this chat for you? The other person will still see their messages.")) return;
   try { await setDoc(doc(db, "users", user.uid), { ["clr_" + cur.id]: serverTimestamp() }, { merge:true }); selId = null; }
   catch(err){ alert("Could not clear the chat. Check your internet and the Firestore rules."); console.error(err); }
@@ -421,6 +430,7 @@ function listen(user){
     clearedMs = c ? c.toMillis() : 0;
     bgPref = { id: userDoc.bgId || "night", image: userDoc.bgImage || null, dim: typeof userDoc.bgDim === "number" ? userDoc.bgDim : 0.45 };
     applyBg();
+    renderHome(user);
     render(user);
   }, err => console.error(err)));
   unsubs.push(onSnapshot(collection(db, "users", uid, "hidden"), s => {
@@ -511,7 +521,7 @@ function renderHome(user){
   let opened = {};
   try { opened = JSON.parse(localStorage.getItem("ourchatOpen") || "{}"); } catch(e){}
   const stamp = c => c.last && c.last.at ? c.last.at.toMillis() : (c.createdAt ? c.createdAt.toMillis() : 0);
-  const list = [...chatsList].sort((a, b) => stamp(b) - stamp(a));
+  const list = chatsList.filter(c => { const k = userDoc["clr_" + c.id]; return !(k && stamp(c) <= k.toMillis()); }).sort((a, b) => stamp(b) - stamp(a));
   if(!list.length){ box.appendChild(emptyState("No chats yet. Tap + to start one.")); return; }
   list.forEach(c => {
     const b = document.createElement("button");
@@ -605,7 +615,7 @@ $("fab").addEventListener("click", () => {
   const me = auth.currentUser; if(!me) return;
   picked = new Set();
   const box = $("people"); box.textContent = "";
-  Object.keys(NAMES).filter(k => k !== me.uid).forEach(k => {
+  Object.keys(NAMES).filter(k => k !== me.uid && chatsList.some(c => c.type === "dm" && c.members.includes(k))).forEach(k => {
     const b = document.createElement("button");
     b.type = "button"; b.className = "pp";
     const av = document.createElement("div"); av.className = "av sm"; paintAv(av, k, NAMES[k][0]);
@@ -617,7 +627,7 @@ $("fab").addEventListener("click", () => {
     });
     box.appendChild(b);
   });
-  if(!box.children.length) box.textContent = "No one else has been added yet.";
+  if(!box.children.length) box.textContent = "Search a name above and start a chat first. Then you can add that person to a group here.";
   $("gname").value = ""; $("gname").classList.add("hidden");
   $("newSheet").classList.remove("hidden");
 });
@@ -860,8 +870,11 @@ function paintHeader(user){
   paintAv($("myav"), user.uid, myName[0]);
   $("rmPhoto").classList.toggle("hidden", !avatars[user.uid]);
   $("addMember").classList.toggle("hidden", user.uid !== ADMIN);
+  $("chPass").classList.toggle("hidden", user.uid !== ADMIN);
   $("grpBtn").classList.toggle("hidden", !(cur && cur.type === "group"));
   $("delGrp").classList.toggle("hidden", !(cur && cur.type === "group" && cur.createdBy === user.uid));
+  $("clearBtn").textContent = cur ? "Clear chat for me" : "Clear all chats for me";
+  $("exportBtn").classList.toggle("hidden", !cur);
   if(cur){
     const t = chatTitle(cur, user.uid);
     $("title").textContent = t;
