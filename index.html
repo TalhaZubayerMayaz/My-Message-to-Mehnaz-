@@ -683,6 +683,8 @@ canvas.eam.kissgo{ animation:none; transition:transform .9s ease; transform:tran
 .kissmark{ position:absolute; left:calc(50% + 40px); top:36px; transform:translate(-50%,-50%) scale(0); font-size:22px; z-index:8; pointer-events:none; opacity:0; }
 .kissmark.show{ animation:kpop .6s cubic-bezier(.2,1.6,.4,1) forwards; }
 @keyframes kpop{ to{ transform:translate(-50%,-50%) scale(1); opacity:1; } }
+canvas#scarf{ left:134px; top:178px; width:56px; height:32px; }
+canvas#scarf.fly{ animation:none; transition:left 1s ease, top 1s ease, transform 1s ease, opacity .5s ease; left:214px; top:160px; transform:translate(-50%,0) scale(.85); }
 </style>
 </head>
 <body>
@@ -881,6 +883,20 @@ canvas.eam.kissgo{ animation:none; transition:transform .9s ease; transform:tran
 <div class="msg" id="cinHint" style="margin-top:10px">Just us, in the dark &hearts;</div>
   <button class="pixel-btn" id="cinReplay" style="display:none;margin-top:12px">&#8635; WATCH AGAIN</button>
   <button class="pixel-btn" id="cinNext" style="display:none;margin-top:12px">CONTINUE &rsaquo;</button>
+</section>
+      <section class="scene" id="scene-kiss">
+  <div class="qprog">A KISS ON THE FOREHEAD</div>
+  <div class="kstage">
+    <div class="kcam" id="kCam">
+      <div class="snow" id="kSnow"></div>
+      <canvas id="kMeh" class="kc km" width="16" height="16"></canvas>
+      <canvas id="kEren" class="kc ke" width="16" height="16"></canvas>
+      <span class="kheart" id="kHeart">&hearts;</span>
+    </div>
+    <div class="kflash" id="kFlash"></div>
+  </div>
+  <div class="msg" id="kMsg" style="margin-top:12px;min-height:48px"></div>
+  <button class="pixel-btn" id="kNext" style="display:none;margin-top:12px">CONTINUE &rsaquo;</button>
 </section>
 
     </main>
@@ -1475,8 +1491,9 @@ function runGame(){
     requestAnimationFrame(f);
   })(lastT);
 }
+const MISS_S = 7.6;   // ei speed er por Eren ar dhorte parbe na
 function startServe(){
-  sx = ex; sy = EY + 18; S = 3.2; vy = S;
+  sx = ex; sy = EY + 18; S = 4.6; vy = S;
   { const tt = (RY - sy) / S, tgt = GW/2 + (Math.random() - .5) * 90; vx = (tgt - sx) / tt; }
   erDecided = false; gState = 'play';
 }
@@ -1486,14 +1503,17 @@ function moveShuttle(dt){
     eSw = eSw > 0 && performance.now() - eSw > SW_DUR ? -1 : eSw;
     if(sy > RY - 78 && mSw < 0) mSw = performance.now();
     if(sy >= RY-16 && sy <= RY+14 && Math.abs(sx - rx) <= 50){
-      S = Math.min(5.5, S + 0.08); vy = -S; vx = ((sx - rx) / (RW/2)) * S * 0.75;
-      { const tt = (sy - EY) / S, land = Math.max(40, Math.min(GW - 40, sx + vx * tt)); vx = (land - sx) / tt; }
+      S = Math.min(11, S + 0.5); vy = -S; vx = ((sx - rx) / (RW/2)) * S * 0.75;
+      const tt = (sy - EY) / S;
+      let land = Math.max(40, Math.min(GW - 40, sx + vx * tt));
+      if(S >= MISS_S) land = ex < GW/2 ? GW - 42 : 42;   // beshi fast: Eren er theke dure porbe
+      vx = (land - sx) / tt;
       burstAt(sx, sy); if(performance.now() - mSw > 300) mSw = performance.now() - 140;
     } else if(sy > GH + 10){ point('er'); }
   } else {
     if(sy <= EY + 60 && sy >= EY - 30 && eSw < 0) eSw = performance.now();
-    if(sy <= EY + 18 && sy >= EY - 26 && Math.abs(sx - ex) <= 30){
-      S = Math.min(5.5, S + 0.05);
+    if(S < MISS_S && sy <= EY + 18 && sy >= EY - 26 && Math.abs(sx - ex) <= 34){
+      S = Math.min(11, S + 0.5);
       const tx = Math.max(45, Math.min(GW-45, GW/2 + (Math.random() - .5) * 140));
       const tt = (RY - sy) / S;
       vy = S; vx = Math.max(-S*.8, Math.min(S*.8, (tx - sx) / tt));
@@ -1506,7 +1526,7 @@ function moveEren(dt){
   let target = GW/2;
   if(vy < 0){ const t = Math.max(0, (sy - EY) / -vy); target = sx + vx * t; }
   target = Math.max(30, Math.min(GW-30, target));
-  const sp = Math.max(1.2, 1.9 - 0.2*losses) * dt;
+  const sp = Math.max(0.9, 2.0 - 0.1*losses) * dt;
   ex += Math.max(-sp, Math.min(sp, target - ex)); ex = Math.max(30, Math.min(GW-30, ex));
 }
 let sparks = [];
@@ -1605,6 +1625,11 @@ const SCARF = [
 "........MMMMM...",
 "........DDDDD..."];
 const mehWalk = document.getElementById('mehWalk');
+const EREN_HOLD = [
+"................","....HHHHHHHH....","...HHHHHHHHHH...","..HHHHHHHHHHHH..",
+"..HHHHHSSHHHHH..","..HHHSSSSSSHHH..","..HHSEESSEESHH..","..HHSSESSESSHH..",
+"..HHSESSSSESHH..","..HHSPSMMSPSHH..","...HSSSSSSSSH...","....JCCCCCCJ....",
+"...JJJCCCCJJJJJS","..JJJBCCCCBJJJJ.","..SJJBBBBBBJJ...","...TTT....TTT..."];
 function enterReward(){
   drawCat(erenWalk, catHappy); drawGrid(mehWalk, MEH_H, PM);
   scarf.className = ''; scarf.style.opacity = ''; drawGrid(scarf, SCARF, PALS); scarfBtn.style.display = 'none'; walkNext.style.display = 'none';
@@ -1617,8 +1642,9 @@ function enterReward(){
 scarfBtn.addEventListener('click', ()=>{
   scarfBtn.style.display = 'none'; scarf.classList.add('fly');
   walkHint.textContent = 'Let me put it on you…';
-  setTimeout(()=>{
+  setTimeout(()=>{    
     scarf.style.opacity = '0'; drawGrid(mehWalk, MEH_S, PM);
+    drawCat(erenWalk, catHappy);
     const r = mehWalk.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height*.5, 16);
     walkHint.textContent = 'For my Mikasa. Keep it warm ♥';
   }, 1050);
@@ -1854,7 +1880,28 @@ cinVid.addEventListener('timeupdate', ()=>{
 cinVid.addEventListener('ended', ()=>{ cinSeek.disabled = false; cinHint.innerHTML = 'Now drag the bar to watch any moment again &hearts;'; });
 cinSeek.addEventListener('input', ()=>{ seeking = true; cinVid.currentTime = cinSeek.value / 1000 * cinVid.duration; });
 cinSeek.addEventListener('change', ()=>{ seeking = false; cinVid.play().catch(()=>{}); });
-
+/* ---- cinematic forehead kiss ---- */
+const kCam = document.getElementById('kCam'), kEren = document.getElementById('kEren'), kMeh = document.getElementById('kMeh');
+const kHeart = document.getElementById('kHeart'), kFlash = document.getElementById('kFlash'), kMsg = document.getElementById('kMsg'), kNext = document.getElementById('kNext');
+(function(){ const s = document.getElementById('kSnow');
+  for(let i=0;i<26;i++){ const d = document.createElement('i'), z = 3 + Math.random()*6;
+    d.style.cssText = `left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${4+Math.random()*5}s;animation-delay:${-Math.random()*8}s;opacity:${.4+Math.random()*.5}`; s.appendChild(d); } })();
+let kT = [];
+function enterKiss(){
+  kT.forEach(clearTimeout); kT = [];
+  drawCat(kEren, catBlush); drawGrid(kMeh, MEH_H, PM);
+  kCam.classList.remove('in'); kEren.classList.remove('lean'); kMeh.classList.remove('up'); kHeart.classList.remove('show'); kFlash.classList.remove('go');
+  kMsg.textContent = ''; kNext.style.display = 'none';
+  showScene('scene-kiss');
+  const at = (f, ms)=> kT.push(setTimeout(f, ms));
+  at(()=> kCam.classList.add('in'), 200);
+  at(()=>{ kEren.classList.add('lean'); kMeh.classList.add('up'); }, 1200);
+  at(()=>{ kHeart.classList.add('show'); kFlash.classList.add('go'); const r = kHeart.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, 18); }, 3800);
+  at(()=>{ kMsg.textContent = 'I will add these answers on the next update of this page, so don’t lose it, my love ♥'; }, 4800);
+  at(()=>{ kNext.style.display = ''; }, 6200);
+}
+kissYes.addEventListener('click', e=>{ e.stopImmediatePropagation(); if(kissDone) return; kissDone = true; amKiss.style.display = 'none'; enterKiss(); }, true);
+kNext.addEventListener('click', ()=> nextStep());
 /* ================= envelope + cupid arrow ================= */
 const envelope = document.getElementById('envelope');
 const arrowHint = document.getElementById('arrowHint');
