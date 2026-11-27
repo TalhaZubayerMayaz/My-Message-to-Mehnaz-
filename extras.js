@@ -26,23 +26,11 @@ const css = `
 .xglow{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(ellipse 85% 70% at 50% 28%,var(--xg2),transparent 72%)}
 .xseek{display:none;width:100%;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:#93504f}
 .xseek.show{display:flex}.xseek input{flex:1;accent-color:var(--red)}.xseek input:disabled{opacity:.55}
-.xpair{display:flex;justify-content:center;gap:10px;margin:8px 0 14px}
-.xpair canvas{width:116px;height:116px;image-rendering:pixelated;filter:drop-shadow(0 6px 10px rgba(0,0,0,.2));animation:idle-bob 2.5s ease-in-out infinite}
 #xaNo{position:relative;transition:left .16s ease,top .16s ease}
 #xaRow.floating #xaNo{position:absolute}
-.xk{position:relative;width:100%;max-width:320px;height:310px;border-radius:14px;border:3px solid var(--coral);overflow:hidden;background:linear-gradient(#eaf7e3,#bfe3dc 50%,#86aecb)}
-.xkc{position:absolute;inset:0}
-.xkp{position:absolute;image-rendering:pixelated;transition:transform 2.4s ease-in-out;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25))}
-#xkE{width:170px;height:170px;left:6px;bottom:-10px;z-index:1;transition:transform 2.6s ease-in-out}
-#xkM{width:130px;height:130px;right:20px;bottom:-6px;z-index:2;transform-origin:50% 100%;transition:transform 2.6s ease-in-out}
-.xsn i{position:absolute;top:-12px;border-radius:50%;background:#fff;animation:xsn linear infinite}
-@keyframes xsn{to{transform:translate(18px,350px)}}
-#xkH{position:absolute;left:calc(50% - 17px);top:26%;font-size:34px;color:#e23b4e;transform:scale(0);opacity:0;z-index:6}
-#xkH.show{animation:xpop .8s cubic-bezier(.2,1.6,.4,1) forwards,heartbeat 1.4s ease-in-out .8s infinite}
-@keyframes xpop{to{transform:scale(1);opacity:1}}
-#xkF{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:7}
-#xkF.go{animation:xfl 1.2s ease-out}
-@keyframes xfl{0%{opacity:.7}100%{opacity:0}}
+.xvstage{position:relative;width:100%;max-width:440px;border-radius:14px;border:3px solid var(--coral);overflow:hidden;margin:6px 0 10px;background:#1a1240;line-height:0;box-shadow:0 8px 18px rgba(150,50,60,.18)}
+.xvstage.sq{max-width:340px;background:#f4b8c8}
+.xvstage video{display:block;width:100%;height:auto;pointer-events:none}
 `;
 const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
@@ -52,7 +40,7 @@ wrap.innerHTML = `
 <section class="scene" id="scene-xask">
   <div class="qprog">YOUR TURN TO ASK</div>
   <div class="bubble up" id="xaBub"><span id="xaTxt"></span></div>
-  <div class="xpair"><canvas id="xaE" width="16" height="16"></canvas><canvas id="xaM" width="16" height="16"></canvas></div>
+  <div class="xvstage sq"><video id="xkv" src="kiss-scene.mp4" poster="kiss-scene.jpg" playsinline preload="auto"></video></div>
   <div class="amblock" id="xaW">
     <textarea class="ta" id="xaAns" placeholder="Ask me anything, as many questions as you like..." maxlength="3000"></textarea>
     <button class="pixel-btn" id="xaSend" style="margin-top:12px">SUBMIT &hearts;</button>
@@ -62,14 +50,7 @@ wrap.innerHTML = `
     <div class="btn-row" id="xaRow"><button class="pixel-btn" id="xaYes">YES</button><button class="pixel-btn" id="xaNo">NO</button></div>
     <div class="msg" id="xaHint" style="margin-top:10px"></div>
   </div>
-</section>
-<section class="scene" id="scene-xkiss">
-  <div class="qprog">A KISS ON THE FOREHEAD</div>
-  <div class="xk"><div class="xkc" id="xkC"><div class="xsn" id="xkS"></div>
-    <canvas id="xkM" class="xkp" width="16" height="16"></canvas><canvas id="xkE" class="xkp" width="16" height="16"></canvas>
-    <span id="xkH">&hearts;</span></div><div id="xkF"></div></div>
-  <div class="msg" id="xkMsg" style="margin-top:12px;min-height:48px"></div>
-  <button class="pixel-btn" id="xkNext" style="display:none;margin-top:12px">CONTINUE &rsaquo;</button>
+  <button class="pixel-btn" id="xaNext" style="display:none;margin-top:16px">CONTINUE &rsaquo;</button>
 </section>
 <section class="scene" id="scene-xticket">
   <div class="qprog">TWO TICKETS TO A MOVIE</div>
@@ -108,13 +89,14 @@ nextStep = function(){
 };
 const fmt = s => { s = Math.floor(s || 0); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
 
-/* ================= Mehnaz asks, then the forehead kiss ================= */
-let xaT = 0, xaDone = false;
+/* ================= Mehnaz asks, then the kiss plays (generated video, shown as if it were the scene) ================= */
+let xaT = 0, xaDone = false, xaSafe = 0;
+const kv = $('#xkv');
 function xaSay(t){ clearInterval(xaT); const el = $('#xaTxt'); el.textContent = ''; let i = 0; xaT = setInterval(()=>{ el.textContent = t.slice(0, ++i); if(i >= t.length) clearInterval(xaT); }, 26); }
 X.xask = function(){
-  xaDone = false; $('#xaAns').value = ''; $('#xaW').style.display = ''; $('#xaY').style.display = 'none';
+  xaDone = false; clearTimeout(xaSafe); kv.pause(); kv.currentTime = 0;
+  $('#xaAns').value = ''; $('#xaW').style.display = ''; $('#xaY').style.display = 'none'; $('#xaNext').style.display = 'none';
   $('#xaSend').disabled = false; $('#xaRow').classList.remove('floating'); $('#xaNo').style.left = ''; $('#xaNo').style.top = ''; $('#xaHint').textContent = '';
-  drawCat($('#xaE'), catNormal); drawGrid($('#xaM'), MEH_N, PM);
   showScene('scene-xask'); xaSay('Now you ask me. Anything you want.');
 };
 $('#xaSend').addEventListener('click', ()=>{
@@ -132,34 +114,19 @@ function xaDodge(){
 $('#xaNo').addEventListener('mouseenter', xaDodge);
 $('#xaNo').addEventListener('click', e=>{ e.preventDefault(); xaDodge(); });
 $('#xaNo').addEventListener('touchstart', e=>{ e.preventDefault(); xaDodge(); }, {passive:false});
-$('#xaYes').addEventListener('click', ()=>{ if(xaDone) return; xaDone = true; kiss(); });
-
-(function(){ const s = $('#xkS');
-  for(let i = 0; i < 26; i++){ const d = document.createElement('i'), z = 3 + Math.random()*6;
-    d.style.cssText = `left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${4+Math.random()*5}s;animation-delay:${-Math.random()*8}s;opacity:${.4+Math.random()*.5}`; s.appendChild(d); } })();
-let kT = [];
-function kiss(){
-  kT.forEach(clearTimeout); kT = [];
-  const E = $('#xkE'), M = $('#xkM'), H = $('#xkH');
-  drawCat(E, catBlush); drawGrid(M, MEH_H, PM);
-  E.style.transition = 'none'; M.style.transition = 'none'; E.style.transform = ''; M.style.transform = '';
-  E.style.transformOrigin = '50% 59.4%';
-  H.classList.remove('show'); $('#xkF').classList.remove('go');
-  $('#xkMsg').textContent = ''; $('#xkNext').style.display = 'none';
-  showScene('scene-xkiss');
-  void E.offsetWidth; E.style.transition = ''; M.style.transition = '';
-  // his mouth now vs the top of her forehead (layout px, not affected by transforms)
-  const mx = E.offsetLeft + .5*E.offsetWidth, my = E.offsetTop + .594*E.offsetHeight;
-  const fx = M.offsetLeft + .5*M.offsetWidth - 4, fy = M.offsetTop + .075*M.offsetHeight;
-  H.style.left = (fx + 70) + 'px'; H.style.top = (fy - 52) + 'px';
-  const at = (f, ms)=> kT.push(setTimeout(f, ms));
-  at(()=>{ M.style.transform = 'rotate(-3deg)'; }, 600);
-  at(()=>{ E.style.transform = `translate(${fx - mx}px, ${fy - my}px) rotate(20deg)`; }, 1200);
-  at(()=>{ H.classList.add('show'); $('#xkF').classList.add('go'); const r = H.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, 18); }, 4000);
-  at(()=>{ $('#xkMsg').textContent = 'I will add these answers on the next update of this page, so don’t lose it, my love ♥'; }, 5000);
-  at(()=>{ $('#xkNext').style.display = ''; }, 6400);
+function xaFinish(){
+  if($('#xaNext').style.display === '') return; clearTimeout(xaSafe);
+  xaSay('I will add these answers on the next update of this page, so don’t lose it, my love ♥');
+  const r = kv.getBoundingClientRect(); spawnJoyBurst(r.left + r.width*.55, r.top + r.height*.35, 18);
+  setTimeout(()=>{ $('#xaNext').style.display = ''; }, 1500);
 }
-$('#xkNext').addEventListener('click', ()=> nextStep());
+$('#xaYes').addEventListener('click', ()=>{
+  if(xaDone) return; xaDone = true; $('#xaY').style.display = 'none'; xaSay('Thank you, my love ♥');
+  kv.currentTime = 0; kv.play().catch(()=>{});
+  xaSafe = setTimeout(xaFinish, 7000);          // safety: never stuck if the video cannot play
+});
+kv.addEventListener('ended', xaFinish);
+$('#xaNext').addEventListener('click', ()=> nextStep());
 
 /* ================= movie tickets: swipe to tear ================= */
 let torn = 0;
@@ -262,33 +229,34 @@ setInterval(()=>{                     // the hall takes on the colour of what is
     hallEl.style.setProperty('--xg', `rgba(${r},${g},${b},.6)`); hallEl.style.setProperty('--xg2', `rgba(${r},${g},${b},.3)`); }catch(e){}
 }, 250);
 
-/* ================= scarf: from Eren's hand to Mikasa's neck ================= */
-const EH = ["................","....HHHHHHHH....","...HHHHHHHHHH...","..HHHHHHHHHHHH..","..HHHHHSSHHHHH..","..HHHSSSSSSHHH..","..HHSEESSEESHH..","..HHSSESSESSHH..","..HHSESSSSESHH..","..HHSPSMMSPSHH..","...HSSSSSSSSH...","....JCCCCCCJ....","...JJJCCCCJJJJJJ","..JJJBCCCCBJJJJS","..SJJBBBBBBJJ...","...TTT....TTT..."];
+/* ================= scarf: the generated video plays when she presses the button ================= */
+const walkStage = $('#scene-walk .walkstage'); walkStage.style.display = 'none';
+const sbox = document.createElement('div'); sbox.className = 'xvstage';
+sbox.innerHTML = '<video id="xsv" src="scarf-scene.mp4" poster="scarf-scene.jpg" playsinline preload="auto"></video>';
+walkStage.parentNode.insertBefore(sbox, walkStage);
+const xsv = $('#xsv');
 const sBtn = (()=>{ const o = $('#scarfBtn'), n = o.cloneNode(true); o.replaceWith(n); return n; })();
 const wNext = (()=>{ const o = $('#walkNext'), n = o.cloneNode(true); o.replaceWith(n); return n; })();
-const scarfEl = $('#scarf'), wHint = $('#walkHint'), stage = scarfEl.parentElement;
+const wHint = $('#walkHint'); let sSafe = 0;
 enterReward = function(){
-  drawCat($('#erenWalk'), EH); drawGrid($('#mehWalk'), MEH_H, PM);
-  scarfEl.className = ''; drawGrid(scarfEl, SCARF, PALS);
-  Object.assign(scarfEl.style, {transition:'none', opacity:'1', width:'56px', height:'32px', left:'136px', top:'192px', transform:'translate(-50%,0) scale(0)'});
+  clearTimeout(sSafe); xsv.pause(); xsv.currentTime = 0;
   sBtn.style.display = 'none'; wNext.style.display = 'none'; sBtn.textContent = 'PUT ON THE SCARF ♥';
   wHint.textContent = 'You beat me. Fair and square ♥'; showScene('scene-walk');
-  const r = $('#mehWalk').getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, 14);
-  setTimeout(()=>{ scarfEl.style.transition = 'transform .6s cubic-bezier(.2,1.5,.4,1)'; scarfEl.style.transform = 'translate(-50%,0) scale(1)';
-    wHint.textContent = 'So here is your prize.'; sBtn.style.display = ''; }, 1700);
+  const r = sbox.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, 14);
+  setTimeout(()=>{ wHint.textContent = 'So here is your prize.'; sBtn.style.display = ''; }, 1700);
 };
+function scarfDone(){
+  if(wNext.style.display === '') return; clearTimeout(sSafe);
+  wHint.textContent = 'For my Mikasa. Keep it warm ♥';
+  const r = sbox.getBoundingClientRect(); spawnJoyBurst(r.left + r.width*.6, r.top + r.height*.45, 16);
+  setTimeout(()=>{ wNext.style.display = ''; }, 800);
+}
 sBtn.addEventListener('click', ()=>{
   sBtn.style.display = 'none'; wHint.textContent = 'Let me put it on you…';
-  const sw = stage.clientWidth;
-  scarfEl.style.transition = 'left 1s ease, top 1s ease, transform 1s ease, opacity .5s ease';
-  scarfEl.style.left = (sw - 86) + 'px'; scarfEl.style.top = '158px'; scarfEl.style.transform = 'translate(-50%,0) scale(.8)';
-  setTimeout(()=>{
-    scarfEl.style.opacity = '0'; drawGrid($('#mehWalk'), MEH_S, PM); drawCat($('#erenWalk'), catHappy);
-    const r = $('#mehWalk').getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height*.5, 16);
-    wHint.textContent = 'For my Mikasa. Keep it warm ♥';
-  }, 1050);
-  setTimeout(()=>{ wNext.style.display = ''; }, 2700);
+  xsv.currentTime = 0; xsv.play().catch(()=>{});
+  sSafe = setTimeout(scarfDone, 6000);          // safety: never stuck if the video cannot play
 });
+xsv.addEventListener('ended', scarfDone);
 wNext.addEventListener('click', ()=> nextStep());
 
 /* ================= badminton: faster, Eren misses once it gets too fast, never over his head ================= */
