@@ -33,8 +33,8 @@ const css = `
 .xk{position:relative;width:100%;max-width:320px;height:310px;border-radius:14px;border:3px solid var(--coral);overflow:hidden;background:linear-gradient(#eaf7e3,#bfe3dc 50%,#86aecb)}
 .xkc{position:absolute;inset:0}
 .xkp{position:absolute;image-rendering:pixelated;transition:transform 2.4s ease-in-out;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25))}
-#xkE{width:170px;height:170px;left:6px;bottom:-10px;transition:transform 2.6s ease-in-out}
-#xkM{width:150px;height:150px;right:10px;bottom:-10px;transform-origin:50% 100%;transition:transform 2.6s ease-in-out}
+#xkE{width:170px;height:170px;left:6px;bottom:-10px;z-index:1;transition:transform 2.6s ease-in-out}
+#xkM{width:130px;height:130px;right:20px;bottom:-6px;z-index:2;transform-origin:50% 100%;transition:transform 2.6s ease-in-out}
 .xsn i{position:absolute;top:-12px;border-radius:50%;background:#fff;animation:xsn linear infinite}
 @keyframes xsn{to{transform:translate(18px,350px)}}
 #xkH{position:absolute;left:calc(50% - 17px);top:26%;font-size:34px;color:#e23b4e;transform:scale(0);opacity:0;z-index:6}
@@ -138,24 +138,23 @@ $('#xaYes').addEventListener('click', ()=>{ if(xaDone) return; xaDone = true; ki
   for(let i = 0; i < 26; i++){ const d = document.createElement('i'), z = 3 + Math.random()*6;
     d.style.cssText = `left:${Math.random()*100}%;width:${z}px;height:${z}px;animation-duration:${4+Math.random()*5}s;animation-delay:${-Math.random()*8}s;opacity:${.4+Math.random()*.5}`; s.appendChild(d); } })();
 let kT = [];
-const EP = ["................","....HHHHHHH.....","...HHHHHHHHHH...","..HHHHHHHHHHHH..","..HHHHHHHHHSSS..","..HHHHHHHHSSSSS.","..HHHHHHHSSSSSSS","..HHHHHHSSEESSSS","..HHHHHHSSSPSSSS","..HHHHHHSSSSSSMM","...HHHHSSSSSSS..","....JJCCCCCJ....","...JJJCCCCJJJ...","..JJJBCCCCBJJJJ.","..SJJBBBBBBJJ...","...TTT....TTT..."];
 function kiss(){
   kT.forEach(clearTimeout); kT = [];
   const E = $('#xkE'), M = $('#xkM'), H = $('#xkH');
-  drawCat(E, EP); drawGrid(M, MEH_H, PM);
+  drawCat(E, catBlush); drawGrid(M, MEH_H, PM);
   E.style.transition = 'none'; M.style.transition = 'none'; E.style.transform = ''; M.style.transform = '';
-  E.style.transformOrigin = '90.6% 59.4%';
+  E.style.transformOrigin = '50% 59.4%';
   H.classList.remove('show'); $('#xkF').classList.remove('go');
   $('#xkMsg').textContent = ''; $('#xkNext').style.display = 'none';
   showScene('scene-xkiss');
   void E.offsetWidth; E.style.transition = ''; M.style.transition = '';
-  // where his mouth is now, and where her forehead is (layout px, unaffected by transforms)
-  const mx = E.offsetLeft + .906*E.offsetWidth, my = E.offsetTop + .594*E.offsetHeight;
-  const fx = M.offsetLeft + .5*M.offsetWidth - 3, fy = M.offsetTop + .2*M.offsetHeight + 2;
-  H.style.left = (fx - 17) + 'px'; H.style.top = (fy - 78) + 'px';
+  // his mouth now vs the top of her forehead (layout px, not affected by transforms)
+  const mx = E.offsetLeft + .5*E.offsetWidth, my = E.offsetTop + .594*E.offsetHeight;
+  const fx = M.offsetLeft + .5*M.offsetWidth - 4, fy = M.offsetTop + .075*M.offsetHeight;
+  H.style.left = (fx + 70) + 'px'; H.style.top = (fy - 52) + 'px';
   const at = (f, ms)=> kT.push(setTimeout(f, ms));
-  at(()=>{ M.style.transform = 'rotate(-4deg)'; }, 600);
-  at(()=>{ E.style.transform = `translate(${fx - mx}px, ${fy - my}px) rotate(11deg)`; }, 1200);
+  at(()=>{ M.style.transform = 'rotate(-3deg)'; }, 600);
+  at(()=>{ E.style.transform = `translate(${fx - mx}px, ${fy - my}px) rotate(20deg)`; }, 1200);
   at(()=>{ H.classList.add('show'); $('#xkF').classList.add('go'); const r = H.getBoundingClientRect(); spawnJoyBurst(r.left + r.width/2, r.top + r.height/2, 18); }, 4000);
   at(()=>{ $('#xkMsg').textContent = 'I will add these answers on the next update of this page, so don’t lose it, my love ♥'; }, 5000);
   at(()=>{ $('#xkNext').style.display = ''; }, 6400);
