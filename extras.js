@@ -119,7 +119,7 @@ $('#xaNo').addEventListener('click', e=>{ e.preventDefault(); xaDodge(); });
 $('#xaNo').addEventListener('touchstart', e=>{ e.preventDefault(); xaDodge(); }, {passive:false});
 function xaFinish(){
   if($('#xaNext').style.display === '') return; clearTimeout(xaSafe);
-  xaSay('I will add these answers on the next update of this page, so don’t lose it, my love ♥');
+  xaSay('This answeres awaits you in the next scan ♥');
   const r = kv.getBoundingClientRect(); spawnJoyBurst(r.left + r.width*.55, r.top + r.height*.35, 18);
   setTimeout(()=>{ $('#xaNext').style.display = ''; }, 1500);
 }
