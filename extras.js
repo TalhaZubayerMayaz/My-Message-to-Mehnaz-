@@ -193,26 +193,17 @@ function drawHall(){
       f.fillStyle = sg; f.fill(); f.strokeStyle = 'rgba(190,210,255,.2)'; f.lineWidth = 1; f.stroke();
     }
   });
-  // ---- decorative lights (own canvas, so they can switch off while the movie plays) ----
+  // ---- the hall lights (own canvas: they switch off while the movie plays, and come back 9s before THE END) ----
   L.clearRect(0,0,W,H);
-  g = L.createRadialGradient(W/2,H*.45,10,W/2,H*.45,260); g.addColorStop(0,'rgba(255,196,130,.13)'); g.addColorStop(1,'rgba(255,196,130,0)');
-  L.fillStyle = g; L.fillRect(0,0,W,H);                                  // warm house-light wash
-  g = L.createLinearGradient(0,10,0,48); g.addColorStop(0,'rgba(255,200,140,.32)'); g.addColorStop(1,'rgba(255,200,140,0)');
-  L.fillStyle = g; L.fillRect(0,10,W,38);                                // glow under the valance
-  for(let x = 18; x < W; x += 14){                                       // string of fairy lights
-    const y = 17 + Math.sin(x/22)*2.5, c = (x/14|0) % 2 ? '255,214,150' : '255,160,170';
-    const fg = L.createRadialGradient(x,y,0,x,y,7); fg.addColorStop(0,`rgba(${c},.95)`); fg.addColorStop(1,`rgba(${c},0)`);
-    L.fillStyle = fg; L.fillRect(x-7,y-7,14,14);
-  }
   [[40,120],[W-40,120],[40,200],[W-40,200]].forEach(([x,y])=>{          // wall lamps
-    const sg = L.createRadialGradient(x,y,0,x,y,30); sg.addColorStop(0,'rgba(255,190,110,.65)'); sg.addColorStop(1,'rgba(255,190,110,0)');
-    L.fillStyle = sg; L.fillRect(x-30,y-30,60,60); L.fillStyle = '#ffe2b0'; L.fillRect(x-1,y-3,3,6);
+    const sg = L.createRadialGradient(x,y,0,x,y,26); sg.addColorStop(0,'rgba(255,190,110,.55)'); sg.addColorStop(1,'rgba(255,190,110,0)');
+    L.fillStyle = sg; L.fillRect(x-26,y-26,52,52); L.fillStyle = '#ffd9a0'; L.fillRect(x-1,y-3,3,6);
   });
   ROWS.forEach(([y,s])=>{                                                // aisle lights
-    [30, W-33].forEach(x=>{ L.fillStyle = 'rgba(255,170,80,.9)'; L.fillRect(x,y-3*s,3,3*s);
-      const ag = L.createRadialGradient(x+1.5,y-1.5*s,0,x+1.5,y-1.5*s,10*s); ag.addColorStop(0,'rgba(255,170,80,.4)'); ag.addColorStop(1,'rgba(255,170,80,0)');
-      L.fillStyle = ag; L.fillRect(x-10*s,y-12*s,22*s,22*s); });
+    L.fillStyle = 'rgba(255,170,80,.85)'; L.fillRect(30,y-3*s,3,3*s); L.fillRect(W-33,y-3*s,3,3*s);
   });
+  g = L.createLinearGradient(0,0,0,170); g.addColorStop(0,'rgba(200,220,255,.12)'); g.addColorStop(1,'rgba(200,220,255,0)');
+  L.fillStyle = g; L.beginPath(); L.moveTo(W/2-10,0); L.lineTo(W/2+10,0); L.lineTo(W-60,170); L.lineTo(60,170); L.closePath(); L.fill();   // projector beam
   g = f.createRadialGradient(W/2,H*.38,H*.3,W/2,H*.38,H*.85); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.72)');
   f.fillStyle = g; f.fillRect(0,0,W,H);
 }
@@ -230,11 +221,17 @@ $('#xplay').addEventListener('click', ()=>{
   $('#xhint').innerHTML = 'Watch it till the end, my love &hearts;'; vid.play().catch(()=>{});
   cinT = setTimeout(()=>{ if(vid.currentTime < .5) $('#xnext').style.display = ''; }, 10000);   // safety if the video fails to load
 });
-vid.addEventListener('play', ()=> hallEl.classList.add('dark'));          // movie on: lights off, only the screen glows
+const XLIGHT_BEFORE = 9;   // seconds before the end when the hall lights come on
+const xNearEnd = ()=> vid.duration > XLIGHT_BEFORE + 3 && (vid.duration - vid.currentTime) <= XLIGHT_BEFORE;
+vid.addEventListener('play', ()=>{ if(!xNearEnd()) hallEl.classList.add('dark'); });   // movie on: lights off, only the screen glows
 vid.addEventListener('click', ()=>{ vid.paused ? vid.play() : vid.pause(); });
 vid.addEventListener('loadedmetadata', ()=>{ $('#xt1').textContent = fmt(vid.duration); });
-vid.addEventListener('timeupdate', ()=>{ if(!seeking && vid.duration) seek.value = vid.currentTime / vid.duration * 1000; $('#xt0').textContent = fmt(vid.currentTime); });
-vid.addEventListener('ended', ()=>{ hallEl.classList.remove('dark');       // THE END: all the lights come on
+vid.addEventListener('timeupdate', ()=>{
+  if(!seeking && vid.duration) seek.value = vid.currentTime / vid.duration * 1000;
+  $('#xt0').textContent = fmt(vid.currentTime);
+  if(!vid.paused && !vid.ended) hallEl.classList.toggle('dark', !xNearEnd());   // lights come back 9s before THE END
+});
+vid.addEventListener('ended', ()=>{ hallEl.classList.remove('dark');       // THE END: all the lights stay on
    watched = true; seek.disabled = false; $('#xnext').style.display = ''; $('#xreplay').style.display = ''; $('#xhint').innerHTML = 'Drag the bar to watch any moment again &hearts;'; });
 seek.addEventListener('input', ()=>{ if(!watched) return; seeking = true; vid.currentTime = seek.value / 1000 * vid.duration; });
 seek.addEventListener('change', ()=>{ seeking = false; if(watched) vid.play().catch(()=>{}); });
