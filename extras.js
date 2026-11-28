@@ -24,6 +24,11 @@ const css = `
 .xscr.on video{display:block}
 .xscr:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 58%,rgba(0,0,0,.5)),linear-gradient(118deg,rgba(255,255,255,.09),transparent 32%)}
 #xplay{position:absolute;margin:0;z-index:3}
+.xhall canvas.xl{transition:filter 1.8s ease,opacity 1.8s ease}
+.xhall.dark canvas.xl:not(.xlt){filter:brightness(.26)}
+.xhall.dark canvas.xlt{opacity:0}
+.xscr{transition:box-shadow 1.8s ease}
+.xhall.dark .xscr{box-shadow:0 0 0 5px #030001,0 0 90px 26px var(--xg)}
 .xglow{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(ellipse 85% 70% at 50% 28%,var(--xg2),transparent 72%)}
 .xseek{display:none;width:100%;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:#93504f}
 .xseek.show{display:flex}.xseek input{flex:1;accent-color:var(--red)}.xseek input:disabled{opacity:.55}
@@ -68,6 +73,7 @@ wrap.innerHTML = `
     <canvas class="xl" id="xcb"></canvas>
     <div class="xscr" id="xscr"><video id="xvid" src="another-love.mp4" playsinline preload="metadata"></video><button class="pixel-btn" id="xplay">&#9654; PLAY</button></div>
     <canvas class="xl" id="xcf"></canvas>
+    <canvas class="xl xlt" id="xcl"></canvas>
     <div class="xglow"></div>
   </div>
   <div class="xseek" id="xseekrow"><span id="xt0">0:00</span><input type="range" id="xseek" min="0" max="1000" value="0" disabled><span id="xt1">0:00</span></div>
@@ -151,10 +157,11 @@ $('#xtGo').addEventListener('click', ()=> nextStep());
 /* ================= cinema ================= */
 const BE = ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.","..HHHHHHHH..","...SSSSSS...",".JJJJSSJJJJ.","JJJJJJJJJJJJ","JJJJJJJJJJJJ"];
 const BM = ["...HHHHHH...","..HHHHHHHH..",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".HHHHHHHHHH.",".hHHHHHHHHh.","..ZZZZZZZZ..","nnnnnnnnnnnn","nnnnnnnnnnnn"];
+const ROWS = [[182,.5],[198,.62],[220,.78],[248,.98],[284,1.22],[330,1.5]];
 function drawHall(){
   const W = 360, H = 340;
   const mk = cv => { cv.width = W*2; cv.height = H*2; const c = cv.getContext('2d'); c.setTransform(2,0,0,2,0,0); c.imageSmoothingEnabled = false; return c; };
-  const b = mk($('#xcb')), f = mk($('#xcf'));
+  const b = mk($('#xcb')), f = mk($('#xcf')), L = mk($('#xcl'));
   const spr = (grid, pal)=>{ const cv = document.createElement('canvas'); drawGrid(cv, grid, pal); return cv; };
   const sE = spr(BE, {H:'#3b2418', S:'#fbd9c3', J:'#a8702f'}), sM = spr(BM, {H:'#a8d8ff', h:'#6aaef0', Z:'#8e1b2b', n:'#1f3f9a'});
   let g = b.createLinearGradient(0,0,0,H); g.addColorStop(0,'#1b0509'); g.addColorStop(1,'#050102'); b.fillStyle = g; b.fillRect(0,0,W,H);
@@ -164,12 +171,8 @@ function drawHall(){
     b.fillStyle = 'rgba(255,120,130,.08)'; for(let i=5;i<30;i+=6) b.fillRect(x+i,0,1,H);
   });
   g = b.createLinearGradient(0,0,0,14); g.addColorStop(0,'#7a1020'); g.addColorStop(1,'#2a0610'); b.fillStyle = g; b.fillRect(0,0,W,14);
-  [[40,120],[W-40,120],[40,200],[W-40,200]].forEach(([x,y])=>{
-    const sg = b.createRadialGradient(x,y,0,x,y,26); sg.addColorStop(0,'rgba(255,190,110,.55)'); sg.addColorStop(1,'rgba(255,190,110,0)');
-    b.fillStyle = sg; b.fillRect(x-26,y-26,52,52); b.fillStyle = '#ffd9a0'; b.fillRect(x-1,y-3,3,6);
-  });
   let seed = 11; const rnd = ()=> (seed = (seed*16807) % 2147483647) / 2147483647;
-  [[182,.5],[198,.62],[220,.78],[248,.98],[284,1.22],[330,1.5]].forEach(([y,s],r)=>{
+  ROWS.forEach(([y,s],r)=>{
     if(r === 5){ const sp = f.createRadialGradient(W/2,170,10,W/2,230,240); sp.addColorStop(0,'rgba(215,225,255,.20)'); sp.addColorStop(1,'rgba(215,225,255,0)'); f.fillStyle = sp; f.fillRect(0,170,W,H-170); }
     const sw = 30*s, sh = 26*s, pitch = 36*s, m = Math.ceil(W/2/pitch) + 1, k0 = .42 + r*.11;
     for(let k = -m-1; k <= m; k++){
@@ -189,16 +192,34 @@ function drawHall(){
       f.lineTo(cx+sw/2-8*s,top); f.quadraticCurveTo(cx+sw/2,top,cx+sw/2,top+8*s); f.lineTo(cx+sw/2,y); f.closePath();
       f.fillStyle = sg; f.fill(); f.strokeStyle = 'rgba(190,210,255,.2)'; f.lineWidth = 1; f.stroke();
     }
-    f.fillStyle = 'rgba(255,170,80,.85)'; f.fillRect(30,y-3*s,3,3*s); f.fillRect(W-33,y-3*s,3,3*s);
   });
-  g = f.createLinearGradient(0,0,0,170); g.addColorStop(0,'rgba(200,220,255,.12)'); g.addColorStop(1,'rgba(200,220,255,0)');
-  f.fillStyle = g; f.beginPath(); f.moveTo(W/2-10,0); f.lineTo(W/2+10,0); f.lineTo(W-60,170); f.lineTo(60,170); f.closePath(); f.fill();
+  // ---- decorative lights (own canvas, so they can switch off while the movie plays) ----
+  L.clearRect(0,0,W,H);
+  g = L.createRadialGradient(W/2,H*.45,10,W/2,H*.45,260); g.addColorStop(0,'rgba(255,196,130,.13)'); g.addColorStop(1,'rgba(255,196,130,0)');
+  L.fillStyle = g; L.fillRect(0,0,W,H);                                  // warm house-light wash
+  g = L.createLinearGradient(0,10,0,48); g.addColorStop(0,'rgba(255,200,140,.32)'); g.addColorStop(1,'rgba(255,200,140,0)');
+  L.fillStyle = g; L.fillRect(0,10,W,38);                                // glow under the valance
+  for(let x = 18; x < W; x += 14){                                       // string of fairy lights
+    const y = 17 + Math.sin(x/22)*2.5, c = (x/14|0) % 2 ? '255,214,150' : '255,160,170';
+    const fg = L.createRadialGradient(x,y,0,x,y,7); fg.addColorStop(0,`rgba(${c},.95)`); fg.addColorStop(1,`rgba(${c},0)`);
+    L.fillStyle = fg; L.fillRect(x-7,y-7,14,14);
+  }
+  [[40,120],[W-40,120],[40,200],[W-40,200]].forEach(([x,y])=>{          // wall lamps
+    const sg = L.createRadialGradient(x,y,0,x,y,30); sg.addColorStop(0,'rgba(255,190,110,.65)'); sg.addColorStop(1,'rgba(255,190,110,0)');
+    L.fillStyle = sg; L.fillRect(x-30,y-30,60,60); L.fillStyle = '#ffe2b0'; L.fillRect(x-1,y-3,3,6);
+  });
+  ROWS.forEach(([y,s])=>{                                                // aisle lights
+    [30, W-33].forEach(x=>{ L.fillStyle = 'rgba(255,170,80,.9)'; L.fillRect(x,y-3*s,3,3*s);
+      const ag = L.createRadialGradient(x+1.5,y-1.5*s,0,x+1.5,y-1.5*s,10*s); ag.addColorStop(0,'rgba(255,170,80,.4)'); ag.addColorStop(1,'rgba(255,170,80,0)');
+      L.fillStyle = ag; L.fillRect(x-10*s,y-12*s,22*s,22*s); });
+  });
   g = f.createRadialGradient(W/2,H*.38,H*.3,W/2,H*.38,H*.85); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.72)');
   f.fillStyle = g; f.fillRect(0,0,W,H);
 }
 const vid = $('#xvid'), scr = $('#xscr'), hallEl = $('#xhall'), seek = $('#xseek');
 let cinT = 0, seeking = false, watched = false;
 X.xcinema = function(){
+  hallEl.classList.remove('dark');
   drawHall(); clearTimeout(cinT); vid.pause(); vid.currentTime = 0; watched = false; seeking = false;
   scr.classList.remove('on'); $('#xplay').style.display = ''; $('#xnext').style.display = 'none'; $('#xreplay').style.display = 'none';
   seek.disabled = true; seek.value = 0; $('#xt0').textContent = '0:00'; $('#xseekrow').classList.remove('show');
@@ -209,10 +230,12 @@ $('#xplay').addEventListener('click', ()=>{
   $('#xhint').innerHTML = 'Watch it till the end, my love &hearts;'; vid.play().catch(()=>{});
   cinT = setTimeout(()=>{ if(vid.currentTime < .5) $('#xnext').style.display = ''; }, 10000);   // safety if the video fails to load
 });
+vid.addEventListener('play', ()=> hallEl.classList.add('dark'));          // movie on: lights off, only the screen glows
 vid.addEventListener('click', ()=>{ vid.paused ? vid.play() : vid.pause(); });
 vid.addEventListener('loadedmetadata', ()=>{ $('#xt1').textContent = fmt(vid.duration); });
 vid.addEventListener('timeupdate', ()=>{ if(!seeking && vid.duration) seek.value = vid.currentTime / vid.duration * 1000; $('#xt0').textContent = fmt(vid.currentTime); });
-vid.addEventListener('ended', ()=>{ watched = true; seek.disabled = false; $('#xnext').style.display = ''; $('#xreplay').style.display = ''; $('#xhint').innerHTML = 'Drag the bar to watch any moment again &hearts;'; });
+vid.addEventListener('ended', ()=>{ hallEl.classList.remove('dark');       // THE END: all the lights come on
+   watched = true; seek.disabled = false; $('#xnext').style.display = ''; $('#xreplay').style.display = ''; $('#xhint').innerHTML = 'Drag the bar to watch any moment again &hearts;'; });
 seek.addEventListener('input', ()=>{ if(!watched) return; seeking = true; vid.currentTime = seek.value / 1000 * vid.duration; });
 seek.addEventListener('change', ()=>{ seeking = false; if(watched) vid.play().catch(()=>{}); });
 $('#xreplay').addEventListener('click', ()=>{ $('#xreplay').style.display = 'none'; vid.currentTime = 0; vid.play().catch(()=>{}); });
