@@ -1,5 +1,6 @@
-/* extras.js for "For Mehnaz": movie tickets, realistic cinema, forehead kiss, scarf, badminton.
-   Self-contained: it injects its own CSS and scenes (all names start with x), so it works whatever earlier patches you pasted. */
+/* extras.js for "For Mehnaz": the media scenes. index.html loads this after its own script.
+   - ask + forehead-kiss video, movie tickets (swipe to tear), cinema with seek bar, scarf video
+   Everything here uses names starting with x, so it never clashes with index.html. */
 (function(){
 'use strict';
 const $ = (s, r)=> (r || document).querySelector(s);
@@ -28,6 +29,9 @@ const css = `
 .xseek.show{display:flex}.xseek input{flex:1;accent-color:var(--red)}.xseek input:disabled{opacity:.55}
 #xaNo{position:relative;transition:left .16s ease,top .16s ease}
 #xaRow.floating #xaNo{position:absolute}
+.bubble.up{flex:none;width:100%;align-items:center;text-align:center;cursor:default;border-radius:14px;min-height:70px;margin:6px 0 16px}
+.bubble.up:before{left:50%;bottom:-15px;margin-left:-7px;border-right-color:transparent;border-top-color:var(--coral)}
+.amblock{width:100%;display:flex;flex-direction:column;align-items:center}
 .xvstage{position:relative;width:100%;max-width:440px;border-radius:14px;border:3px solid var(--coral);overflow:hidden;margin:6px 0 10px;background:#1a1240;line-height:0;box-shadow:0 8px 18px rgba(150,50,60,.18)}
 .xvstage.sq{max-width:340px;background:#f4b8c8}
 .xvstage video{display:block;width:100%;height:auto;pointer-events:none}
@@ -73,14 +77,7 @@ wrap.innerHTML = `
 </section>`;
 while(wrap.firstChild) host.appendChild(wrap.firstChild);
 
-/* ================= flow ================= */
-const OLD = ['mticket','cinema','askme','xask','xticket','xcinema'];
-const askAt = Math.max(0, FLOW.findIndex(s=> s.t === 'askme' || s.t === 'xask'));
-for(let k = FLOW.length - 1; k >= 0; k--) if(OLD.includes(FLOW[k].t)) FLOW.splice(k, 1);
-FLOW.splice(Math.min(askAt, FLOW.length), 0, {t:'xask', mood:'night'});
-const tAt = FLOW.findIndex(s=> s.t === 'ticket');
-FLOW.splice(tAt < 0 ? FLOW.length : tAt, 0, {t:'xticket', mood:'candle'}, {t:'xcinema', mood:'night'});
-
+/* ================= flow (the x steps already sit in FLOW inside index.html) ================= */
 const X = {};
 const _next = nextStep;
 nextStep = function(){
@@ -230,13 +227,12 @@ setInterval(()=>{                     // the hall takes on the colour of what is
 }, 250);
 
 /* ================= scarf: the generated video plays when she presses the button ================= */
-const walkStage = $('#scene-walk .walkstage'); walkStage.style.display = 'none';
 const sbox = document.createElement('div'); sbox.className = 'xvstage';
 sbox.innerHTML = '<video id="xsv" src="scarf-scene.mp4" poster="scarf-scene.jpg" playsinline preload="auto"></video>';
-walkStage.parentNode.insertBefore(sbox, walkStage);
+$('#walkSlot').appendChild(sbox);
 const xsv = $('#xsv');
-const sBtn = (()=>{ const o = $('#scarfBtn'), n = o.cloneNode(true); o.replaceWith(n); return n; })();
-const wNext = (()=>{ const o = $('#walkNext'), n = o.cloneNode(true); o.replaceWith(n); return n; })();
+const sBtn = $('#scarfBtn');
+const wNext = $('#walkNext');
 const wHint = $('#walkHint'); let sSafe = 0;
 enterReward = function(){
   clearTimeout(sSafe); xsv.pause(); xsv.currentTime = 0;
@@ -258,43 +254,4 @@ sBtn.addEventListener('click', ()=>{
 });
 xsv.addEventListener('ended', scarfDone);
 wNext.addEventListener('click', ()=> nextStep());
-
-/* ================= badminton: faster, Eren misses once it gets too fast, never over his head ================= */
-const MISS_S = 7.6;
-startServe = function(){
-  sx = ex; sy = EY + 18; S = 4.6; vy = S;
-  { const tt = (RY - sy) / S, tgt = GW/2 + (Math.random() - .5) * 90; vx = (tgt - sx) / tt; }
-  erDecided = false; gState = 'play';
-};
-moveShuttle = function(dt){
-  sx += vx*dt; sy += vy*dt;
-  if(vy > 0){
-    eSw = eSw > 0 && performance.now() - eSw > SW_DUR ? -1 : eSw;
-    if(sy > RY - 78 && mSw < 0) mSw = performance.now();
-    if(sy >= RY-16 && sy <= RY+14 && Math.abs(sx - rx) <= 50){
-      S = Math.min(11, S + 0.5); vy = -S; vx = ((sx - rx) / (RW/2)) * S * 0.75;
-      const tt = (sy - EY) / S;
-      let land = Math.max(40, Math.min(GW - 40, sx + vx * tt));
-      if(S >= MISS_S) land = ex < GW/2 ? GW - 42 : 42;
-      vx = (land - sx) / tt;
-      burstAt(sx, sy); if(performance.now() - mSw > 300) mSw = performance.now() - 140;
-    } else if(sy > GH + 10){ point('er'); }
-  } else {
-    if(sy <= EY + 60 && sy >= EY - 30 && eSw < 0) eSw = performance.now();
-    if(S < MISS_S && sy <= EY + 18 && sy >= EY - 26 && Math.abs(sx - ex) <= 34){
-      S = Math.min(11, S + 0.5);
-      const tx = Math.max(45, Math.min(GW-45, GW/2 + (Math.random() - .5) * 140)), tt = (RY - sy) / S;
-      vy = S; vx = Math.max(-S*.8, Math.min(S*.8, (tx - sx) / tt));
-      burstAt(sx, sy); if(performance.now() - eSw > 300) eSw = performance.now() - 140;
-    }
-    if(sy < -10){ point('me'); }
-  }
-};
-moveEren = function(dt){
-  let target = GW/2;
-  if(vy < 0){ const t = Math.max(0, (sy - EY) / -vy); target = sx + vx * t; }
-  target = Math.max(30, Math.min(GW-30, target));
-  const sp = Math.max(0.9, 2.0 - 0.1*losses) * dt;
-  ex += Math.max(-sp, Math.min(sp, target - ex)); ex = Math.max(30, Math.min(GW-30, ex));
-};
 })();
