@@ -49,7 +49,7 @@ wrap.innerHTML = `
 <section class="scene" id="scene-xask">
   <div class="qprog">YOUR TURN TO ASK</div>
   <div class="bubble up" id="xaBub"><span id="xaTxt"></span></div>
-  <div class="xvstage sq"><video id="xkv" src="kiss-scene.mp4" poster="kiss-scene.jpg" playsinline preload="auto"></video></div>
+  <div class="xvstage sq"><video id="xkv" src="kiss-scene.mp4" poster="kiss-scene.jpg" playsinline muted preload="auto"></video></div>
   <div class="amblock" id="xaW">
     <textarea class="ta" id="xaAns" placeholder="Ask me anything, as many questions as you like..." maxlength="3000"></textarea>
     <button class="pixel-btn" id="xaSend" style="margin-top:12px">SUBMIT &hearts;</button>
@@ -258,7 +258,7 @@ setInterval(()=>{                     // the hall takes on the colour of what is
 
 /* ================= scarf: the generated video plays when she presses the button ================= */
 const sbox = document.createElement('div'); sbox.className = 'xvstage';
-sbox.innerHTML = '<video id="xsv" src="scarf-scene.mp4" poster="scarf-scene.jpg" playsinline preload="auto"></video>';
+sbox.innerHTML = '<video id="xsv" src="scarf-scene.mp4" poster="scarf-scene.jpg" playsinline muted preload="auto"></video>';
 $('#walkSlot').appendChild(sbox);
 const xsv = $('#xsv');
 const sBtn = $('#scarfBtn');
