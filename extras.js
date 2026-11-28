@@ -18,6 +18,8 @@ const css = `
 .xt.torn .s{transform:translate(30px,80px) rotate(18deg);opacity:0;pointer-events:none}
 .xhall{position:relative;width:100%;aspect-ratio:360/340;border-radius:12px;overflow:hidden;border:3px solid #4a0d16;background:#050102;--xg:rgba(190,205,230,.45);--xg2:rgba(190,205,230,.2)}
 .xhall canvas.xl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.xhall canvas.xp{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity 1.8s ease}
+.xhall.beam canvas.xp{opacity:1}
 .xscr{position:absolute;left:14%;top:5.5%;width:72%;height:43%;overflow:hidden;border-radius:3px/6px;display:flex;align-items:center;justify-content:center;background:linear-gradient(#f4f7fb,#cdd6e4);box-shadow:0 0 0 5px #0a0204,0 0 70px 16px var(--xg);transform:perspective(800px) rotateX(1.5deg)}
 .xscr.on{background:#000}
 .xscr video{width:100%;height:100%;object-fit:contain;display:none;cursor:pointer;background:#000}
@@ -72,6 +74,7 @@ wrap.innerHTML = `
   <div class="xhall" id="xhall">
     <canvas class="xl" id="xcb"></canvas>
     <div class="xscr" id="xscr"><video id="xvid" src="another-love.mp4" playsinline preload="metadata"></video><button class="pixel-btn" id="xplay">&#9654; PLAY</button></div>
+    <canvas class="xp" id="xcp"></canvas>
     <canvas class="xl" id="xcf"></canvas>
     <canvas class="xl xlt" id="xcl"></canvas>
     <div class="xglow"></div>
@@ -161,7 +164,7 @@ const ROWS = [[182,.5],[198,.62],[220,.78],[248,.98],[284,1.22],[330,1.5]];
 function drawHall(){
   const W = 360, H = 340;
   const mk = cv => { cv.width = W*2; cv.height = H*2; const c = cv.getContext('2d'); c.setTransform(2,0,0,2,0,0); c.imageSmoothingEnabled = false; return c; };
-  const b = mk($('#xcb')), f = mk($('#xcf')), L = mk($('#xcl'));
+  const b = mk($('#xcb')), f = mk($('#xcf')), L = mk($('#xcl')), P = mk($('#xcp'));
   const spr = (grid, pal)=>{ const cv = document.createElement('canvas'); drawGrid(cv, grid, pal); return cv; };
   const sE = spr(BE, {H:'#3b2418', S:'#fbd9c3', J:'#a8702f'}), sM = spr(BM, {H:'#a8d8ff', h:'#6aaef0', Z:'#8e1b2b', n:'#1f3f9a'});
   let g = b.createLinearGradient(0,0,0,H); g.addColorStop(0,'#1b0509'); g.addColorStop(1,'#050102'); b.fillStyle = g; b.fillRect(0,0,W,H);
@@ -193,24 +196,40 @@ function drawHall(){
       f.fillStyle = sg; f.fill(); f.strokeStyle = 'rgba(190,210,255,.2)'; f.lineWidth = 1; f.stroke();
     }
   });
-  // ---- the hall lights (own canvas: they switch off while the movie plays, and come back 9s before THE END) ----
+  // ---- the hall lights (own canvas: they switch off when the movie starts, and come back 10.2s before THE END) ----
   L.clearRect(0,0,W,H);
-  [[40,120],[W-40,120],[40,200],[W-40,200]].forEach(([x,y])=>{          // wall lamps
-    const sg = L.createRadialGradient(x,y,0,x,y,26); sg.addColorStop(0,'rgba(255,190,110,.55)'); sg.addColorStop(1,'rgba(255,190,110,0)');
-    L.fillStyle = sg; L.fillRect(x-26,y-26,52,52); L.fillStyle = '#ffd9a0'; L.fillRect(x-1,y-3,3,6);
+  // wall sconces: little fixtures fixed to the side walls, washing warm light up and down the wall
+  [15, W-15].forEach(x=>{
+    [52, 118].forEach(y=>{
+      L.save(); L.translate(x,y); L.scale(.5,1.9);
+      const wg = L.createRadialGradient(0,0,0,0,0,26); wg.addColorStop(0,'rgba(255,190,110,.5)'); wg.addColorStop(1,'rgba(255,190,110,0)');
+      L.fillStyle = wg; L.fillRect(-26,-26,52,52); L.restore();
+      L.fillStyle = '#2a0f0c'; L.fillRect(x-4,y-6,8,12);      // backplate
+      L.fillStyle = '#ffd9a0'; L.fillRect(x-2,y-4,4,8);        // lit glass
+    });
   });
-  ROWS.forEach(([y,s])=>{                                                // aisle lights
-    L.fillStyle = 'rgba(255,170,80,.85)'; L.fillRect(30,y-3*s,3,3*s); L.fillRect(W-33,y-3*s,3,3*s);
+  // step lights: tiny LEDs at the end of every row, against the side walls, with a soft pool of light on the floor
+  ROWS.forEach(([y,s])=>{
+    [4, W-7].forEach(x=>{
+      L.save(); L.translate(x+1.5,y); L.scale(2.2,.6);
+      const fg = L.createRadialGradient(0,0,0,0,0,10); fg.addColorStop(0,'rgba(255,170,80,.45)'); fg.addColorStop(1,'rgba(255,170,80,0)');
+      L.fillStyle = fg; L.fillRect(-10,-10,20,20); L.restore();
+      L.fillStyle = 'rgba(255,170,80,.9)'; L.fillRect(x,y-3*s,3,3*s);
+    });
   });
-  g = L.createLinearGradient(0,0,0,170); g.addColorStop(0,'rgba(200,220,255,.12)'); g.addColorStop(1,'rgba(200,220,255,0)');
-  L.fillStyle = g; L.beginPath(); L.moveTo(W/2-10,0); L.lineTo(W/2+10,0); L.lineTo(W-60,170); L.lineTo(60,170); L.closePath(); L.fill();   // projector beam
+  // projector: dark booth port in the back wall (always there), the beam itself only shows while the movie plays
+  b.fillStyle = '#080203'; b.fillRect(W/2-10,0,20,6);
+  P.clearRect(0,0,W,H);
+  const pg = P.createLinearGradient(0,6,0,165); pg.addColorStop(0,'rgba(215,228,250,.34)'); pg.addColorStop(.85,'rgba(215,228,250,.06)'); pg.addColorStop(1,'rgba(215,228,250,0)');
+  P.fillStyle = pg; P.beginPath(); P.moveTo(W/2-5,6); P.lineTo(W/2+5,6); P.lineTo(310,165); P.lineTo(50,165); P.closePath(); P.fill();
+  P.fillStyle = 'rgba(230,240,255,.95)'; P.fillRect(W/2-6,5,12,2);
   g = f.createRadialGradient(W/2,H*.38,H*.3,W/2,H*.38,H*.85); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.72)');
   f.fillStyle = g; f.fillRect(0,0,W,H);
 }
 const vid = $('#xvid'), scr = $('#xscr'), hallEl = $('#xhall'), seek = $('#xseek');
 let cinT = 0, seeking = false, watched = false;
 X.xcinema = function(){
-  hallEl.classList.remove('dark');
+  hallEl.classList.remove('dark','beam');
   drawHall(); clearTimeout(cinT); vid.pause(); vid.currentTime = 0; watched = false; seeking = false;
   scr.classList.remove('on'); $('#xplay').style.display = ''; $('#xnext').style.display = 'none'; $('#xreplay').style.display = 'none';
   seek.disabled = true; seek.value = 0; $('#xt0').textContent = '0:00'; $('#xseekrow').classList.remove('show');
@@ -221,17 +240,17 @@ $('#xplay').addEventListener('click', ()=>{
   $('#xhint').innerHTML = 'Watch it till the end, my love &hearts;'; vid.play().catch(()=>{});
   cinT = setTimeout(()=>{ if(vid.currentTime < .5) $('#xnext').style.display = ''; }, 10000);   // safety if the video fails to load
 });
-const XLIGHT_BEFORE = 9;   // seconds before the end when the hall lights come on
+const XLIGHT_BEFORE = 10.2;   // seconds before the end when the hall lights come on
 const xNearEnd = ()=> vid.duration > XLIGHT_BEFORE + 3 && (vid.duration - vid.currentTime) <= XLIGHT_BEFORE;
-vid.addEventListener('play', ()=>{ if(!xNearEnd()) hallEl.classList.add('dark'); });   // movie on: lights off, only the screen glows
+vid.addEventListener('play', ()=>{ hallEl.classList.add('beam'); if(!xNearEnd()) hallEl.classList.add('dark'); });   // movie on: lights off, only the screen glows
 vid.addEventListener('click', ()=>{ vid.paused ? vid.play() : vid.pause(); });
 vid.addEventListener('loadedmetadata', ()=>{ $('#xt1').textContent = fmt(vid.duration); });
 vid.addEventListener('timeupdate', ()=>{
   if(!seeking && vid.duration) seek.value = vid.currentTime / vid.duration * 1000;
   $('#xt0').textContent = fmt(vid.currentTime);
-  if(!vid.paused && !vid.ended) hallEl.classList.toggle('dark', !xNearEnd());   // lights come back 9s before THE END
+  if(!vid.paused && !vid.ended) hallEl.classList.toggle('dark', !xNearEnd());   // lights come back 10.2s before THE END
 });
-vid.addEventListener('ended', ()=>{ hallEl.classList.remove('dark');       // THE END: all the lights stay on
+vid.addEventListener('ended', ()=>{ hallEl.classList.remove('dark','beam');       // THE END: all the lights stay on, projector off
    watched = true; seek.disabled = false; $('#xnext').style.display = ''; $('#xreplay').style.display = ''; $('#xhint').innerHTML = 'Drag the bar to watch any moment again &hearts;'; });
 seek.addEventListener('input', ()=>{ if(!watched) return; seeking = true; vid.currentTime = seek.value / 1000 * vid.duration; });
 seek.addEventListener('change', ()=>{ seeking = false; if(watched) vid.play().catch(()=>{}); });
